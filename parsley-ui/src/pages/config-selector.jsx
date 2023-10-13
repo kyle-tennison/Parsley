@@ -20,37 +20,37 @@ export function ConfigSelector() {
     useEffect(() => {
         console.log("update config json...")
 
-        // let current_config = readConfig()
-        // let new_blacklist = []
+        let current_config = readConfig()
+        let new_blacklist = []
 
-        // let selections = {
-        //     "coolant" : coolantBlock,
-        //     "spindleStart": spindleStartBlock ,
-        //     "homing" : homingBlock
-        // }
+        let selections = {
+            "coolant" : coolantBlock,
+            "spindleStart": spindleStartBlock ,
+            "homing" : homingBlock
+        }
 
-        // // Update settings for all the default keys
-        // for (const key in selections){
-        //     let blocked = selections[key] 
-        //     if (blocked) {
-        //         // Add the blocked key 
-        //         new_blacklist.push(BLACKLIST_MAP[key])
-        //     }
-        // }
+        // Update settings for all the default keys
+        for (const key in selections){
+            let blocked = selections[key] 
+            if (blocked) {
+                // Add the blocked key 
+                new_blacklist.push(BLACKLIST_MAP[key])
+            }
+        }
 
         
-        // // Add back the custom keys
-        // // TODO: Add a way to remove custom keys
-        // for (const key in current_config.blacklist){
-        //     let item = current_config.blacklist[key]
-        //     if (!Object.values(BLACKLIST_MAP).includes(item)){
-        //         new_blacklist.push(item)
-        //     }
-        // }
+        // Add back the custom keys
+        // TODO: Add a way to remove custom keys
+        for (const key in current_config.blacklist){
+            let item = current_config.blacklist[key]
+            if (!Object.values(BLACKLIST_MAP).includes(item)){
+                new_blacklist.push(item)
+            }
+        }
         
-        // // Write changes to json
-        // current_config.blacklist = new_blacklist
-        // writeConfig(current_config)
+        // Write changes to json
+        current_config.blacklist = new_blacklist
+        writeConfig(current_config)
         
     })
 

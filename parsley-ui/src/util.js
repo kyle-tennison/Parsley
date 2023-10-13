@@ -1,4 +1,5 @@
-const fs = require('fs');
+const fs = window.require('fs');
+const path = window.require('path')
 
 const CONFIG_FILE = "../storage/config.json"
 
@@ -18,7 +19,22 @@ function writeConfig(object){
 }
 
 function readConfig(){
-    console.log("reading config")
+
+    // const jsonPath = "../storage/"
+    // console.log("jsonpath:", jsonPath)
+
+    // fs.readdir(jsonPath, (err, files) => {
+    //     if (err) {
+    //       console.error(`Error reading directory: ${err}`);
+    //     } else {
+    //       console.log('Contents of the directory:');
+    //       files.forEach((file) => {
+    //         console.log(file);
+    //       });
+    //     }
+    //   });
+    // return {}
+    console.log("reading config...")
     try {
         const fileData = fs.readFileSync(CONFIG_FILE, 'utf8');
         const jsonData = JSON.parse(fileData);
