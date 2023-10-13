@@ -14,8 +14,8 @@ const createWindow = () => {
 }
 app.whenReady().then(() => {
   ipcMain.handle('ping', () => 'pong')
-  ipcMain.handle('readJson', () => {
-    return util.read_config()})
+  ipcMain.handle('readConfig', () => {return util.readConfig()})
+  ipcMain.handle('writeConfig', (object) => {return util.writeConfig(object)})
   createWindow()
 })
 

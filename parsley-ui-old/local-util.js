@@ -9,7 +9,7 @@ const BLACKLIST_MAP = {
     homing: "Z0",
 }
 
-function write_to_config(object){
+function writeConfig(object){
 
     fs.writeFile(CONFIG_FILE, JSON.stringify(object), (error) => {
         if (error) throw error;
@@ -17,7 +17,7 @@ function write_to_config(object){
     console.log("writing:", object)
 }
 
-function read_config(){
+function readConfig(){
     console.log("reading config")
     try {
         const fileData = fs.readFileSync(CONFIG_FILE, 'utf8');
@@ -31,6 +31,6 @@ function read_config(){
 
 module.exports = {
     BLACKLIST_MAP: BLACKLIST_MAP,
-    write_to_config: write_to_config,
-    read_config: read_config,
+    writeConfig: writeConfig,
+    readConfig: readConfig,
 }
