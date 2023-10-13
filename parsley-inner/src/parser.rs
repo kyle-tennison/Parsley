@@ -12,11 +12,11 @@ use serde_json;
 
 #[derive(Deserialize)]
 struct ConfigJson {
-    blacklisted_lines: Vec<String>,
+    blacklist: Vec<String>,
 }
 
 pub struct Parser {
-    blacklisted_lines: Vec<String>,
+    blacklist: Vec<String>,
     // config_filename: String
 }
 
@@ -32,7 +32,7 @@ impl Parser {
         let config: ConfigJson = serde_json::from_str(&contents).unwrap();
 
         Ok(Parser {
-            blacklisted_lines: config.blacklisted_lines,
+            blacklist: config.blacklist,
             // config_filename: config_json_filename.clone()
         })
     }
@@ -51,7 +51,7 @@ impl Parser {
             let line = line?;
             let mut valid_line = true;
 
-            for banned in &self.blacklisted_lines {
+            for banned in &self.blacklist {
                 if line.contains(banned) {
                     println!("debug: found illegal line: {}", line);
                     valid_line = false;

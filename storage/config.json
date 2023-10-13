@@ -1,5 +1,1 @@
-{
-    "blacklisted_lines" : [
-        "BADLINE"
-    ]
-}
+{"blacklist":["m5","replace","Z0"]}
