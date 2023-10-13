@@ -4,6 +4,7 @@ use std::fs::File;
 use std::fs::OpenOptions;
 use std::io::BufRead;
 use std::io::BufReader;
+use std::io::BufWriter;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
@@ -26,6 +27,7 @@ fn main() -> Result<(), std::io::Error>{
     let mut filenames: Vec<String> = Vec::new();
     let mut filename_hashes: Vec<String> = Vec::new();
     let mut file_hashes: Vec<String> = Vec::new();
+
     let mut filter_queue: Vec<PathBuf> = Vec::new();
 
     match list_dir(Path::new(start_dir)) {
@@ -86,11 +88,14 @@ fn main() -> Result<(), std::io::Error>{
     // Load Previously Parsed Files
     let mut previously_parsed: HashMap<String, String> = HashMap::new();
     let hashes_file = File::open(PARSED_LIST_FILE)?;
-    
     let reader = BufReader::new(hashes_file);
     
     for line in reader.lines() {
         let line = line?;
+
+        if line.is_empty(){
+            continue
+        }
         
         let split: Vec<&str> = line.split(" ").collect();
         
@@ -109,6 +114,13 @@ fn main() -> Result<(), std::io::Error>{
     
 
     // Search for modified/new files
+    let mut tmp_copy = OpenOptions::new() // This will replace the existing parse list
+    .write(true)
+    .create(true)
+    .open(format!("{}{}", PARSED_LIST_FILE, ".tmp") )
+    .unwrap();
+    let mut writer = BufWriter::new(&tmp_copy);
+
     let mut parse_queue: Vec<String> = Vec::new();
     while file_hashes.len() > 0 {
         let filename_hash = filename_hashes.pop().unwrap();
@@ -119,7 +131,8 @@ fn main() -> Result<(), std::io::Error>{
             Some(existing_hash) => {
                 // Check if both hashes match
                 if *existing_hash == file_hash {
-                    println!("debug: {} is unchanged", file_hash )
+                    println!("debug: {} is unchanged", file_hash);
+                    writer.write_all(format!("{} {}\n", filename_hash, file_hash).as_bytes())?;
                 }
                 else {
                     println!("Found modified file {}", filename);
@@ -135,14 +148,8 @@ fn main() -> Result<(), std::io::Error>{
 
     }
 
+    // Parse files
     println!("Found {} files to parse", parse_queue.len());
-
-    let mut hashes_file = OpenOptions::new()
-        .write(true)
-        .append(true)
-        .open(PARSED_LIST_FILE)?;
-
-    
     let parser = Parser::new(&CONFIG_JSON.to_string())?;
     for file in &parse_queue {
         println!("Parsing {}", file);
@@ -157,9 +164,13 @@ fn main() -> Result<(), std::io::Error>{
                 md5_hash_file(file)?
         ).to_string();
 
-        hashes_file.write_all(newline.as_bytes())?;
-        hashes_file.flush()?;
+        writer.write_all(newline.as_bytes())?;
+        writer.flush()?;
     }
+
+    // Replace parse-list with new one
+    fs::remove_file(PARSED_LIST_FILE)?;
+    fs::rename(format!("{}{}", PARSED_LIST_FILE, ".tmp"), PARSED_LIST_FILE)?;
 
     Ok(())
 

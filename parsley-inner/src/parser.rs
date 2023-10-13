@@ -77,6 +77,7 @@ impl Parser {
 
             let mut writer = BufWriter::new(&file);
             for line in checked_lines {
+                println!("Writing: {}", line);
                 writer.write_all(line.as_bytes())?;
                 writer.write_all("\n".as_bytes())?;
             }
