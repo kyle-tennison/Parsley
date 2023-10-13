@@ -1,5 +1,5 @@
 {
     "blacklisted_lines" : [
-        "123"
+        "BADLINE"
     ]
 }

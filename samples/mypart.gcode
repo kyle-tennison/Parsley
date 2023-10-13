@@ -1,12 +1,8 @@
 
+Sample Document
+
+
 BADLINE
+GOODLINE
+This is a BADLINE 
 
-good
-flowers and rainbows and smiles
-les
-
-123
-123
-123
-123
-123

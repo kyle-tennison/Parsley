@@ -2,7 +2,7 @@
 // extern crate serde;
 // extern crate serde_json;
 
-use std::{fs::{File, OpenOptions}, io::{Read, BufReader, BufRead, BufWriter, Write}, path::Path};
+use std::{fs::{File, OpenOptions, self}, io::{Read, BufReader, BufRead, BufWriter, Write}, path::Path};
 
 use serde::Deserialize;
 use serde_json;
@@ -44,49 +44,30 @@ impl Parser {
         let file = File::open(filename)?;
         let reader = BufReader::new(&file);
 
-        let mut checked_lines: Vec<String> = Vec::new();
-
-        let mut has_invalid_line = false; // See if changing anything is necessary
+        let file_copy = OpenOptions::new().write(true).create(true).open(format!("{}.tmp", filename))?;
+        let mut writer = BufWriter::new(&file_copy);
 
         for line in reader.lines() {
 
             let line = line?;
-
-            // TODO: If the stack gets over some number of lines, write it and then continue
             let mut valid_line = true;
 
             for banned in &self.blacklisted_lines {
                 if line.contains(banned) {
                     println!("Found illegal line: {}", line);
                     valid_line = false;
-                    has_invalid_line = true;
                 }
             }
 
             if valid_line {
-                checked_lines.push(line)
+                writer.write_all(format!("{}\n", line).as_bytes())?;
             }
         }
 
+        // Replace with parsed gcode
+        fs::remove_file(filename)?;
+        fs::rename(format!("{}.tmp", filename), filename)?;
 
-        if has_invalid_line {
-            let file = OpenOptions::new()
-                .write(true)
-                .open(filename)
-                .unwrap();
-
-            let mut writer = BufWriter::new(&file);
-            for line in checked_lines {
-                println!("Writing: {}", line);
-                writer.write_all(line.as_bytes())?;
-                writer.write_all("\n".as_bytes())?;
-            }
-
-            writer.flush()?;
-        }
-        else {
-            println!("Found no issues in {}", filename)
-        }
 
         
         Ok(true)
