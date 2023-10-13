@@ -1,4 +1,3 @@
-use md5::Context;
 use std::collections::HashMap;
 use std::fs;
 use std::fs::File;
@@ -6,7 +5,6 @@ use std::fs::OpenOptions;
 use std::io::BufRead;
 use std::io::BufReader;
 use std::io::BufWriter;
-use std::io::Read;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
@@ -28,7 +26,7 @@ fn main() -> Result<(), std::io::Error> {
 
     let mut filter_queue: Vec<PathBuf> = Vec::new();
 
-    for file  in util::list_dir(Path::new(start_dir))?{
+    for file in util::list_dir(Path::new(start_dir))? {
         filter_queue.push(file);
     }
 
@@ -37,16 +35,14 @@ fn main() -> Result<(), std::io::Error> {
 
         // Add folder contents to stack if they exist
         if util::is_directory(file.as_path()) {
-
-            for child in util::list_dir(file.as_path())?{
+            for child in util::list_dir(file.as_path())? {
                 filter_queue.push(child);
             }
-
         }
 
         // If the contents aren't from a directory, validate they are gcode
         if file.to_str().unwrap().ends_with(".gcode") {
-            println!("Queueing {}", file.display());
+            println!("debug: queueing {}", file.display());
 
             filenames.push(file.to_str().unwrap().to_string());
             let filename = filenames.last().unwrap();
@@ -76,7 +72,7 @@ fn main() -> Result<(), std::io::Error> {
         let split: Vec<&str> = line.split(" ").collect();
 
         if split.len() < 2 {
-            eprintln!("Error in hashes file '{}'", PARSED_LIST_FILE);
+            eprintln!("error: invalid hashes file '{}'", PARSED_LIST_FILE);
             return Ok(());
         }
 
@@ -107,29 +103,34 @@ fn main() -> Result<(), std::io::Error> {
                     println!("debug: {} is unchanged", file_hash);
                     writer.write_all(format!("{} {}\n", filename_hash, file_hash).as_bytes())?;
                 } else {
-                    println!("Found modified file {}", filename);
+                    println!("info: found modified file {}", filename);
                     parse_queue.push(filename);
                 }
             }
             None => {
                 // This means that there is a new file
-                println!("Found new file {}", filename);
+                println!("info: found new file {}", filename);
                 parse_queue.push(filename);
             }
         }
     }
 
     // Parse files
-    println!("Found {} files to parse", parse_queue.len());
+    println!("info: found {} files to parse", parse_queue.len());
     let parser = Parser::new(&CONFIG_JSON.to_string())?;
     for file in &parse_queue {
-        println!("Parsing {}", file);
+        println!("info: parsing {}", file);
 
         // parse the file
         parser.parse_file(file)?;
 
         // Add new hash into file
-        let newline = format!("\n{} {}", util::hash_filename(file), util::md5_hash_file(file)?).to_string();
+        let newline = format!(
+            "\n{} {}",
+            util::hash_filename(file),
+            util::md5_hash_file(file)?
+        )
+        .to_string();
 
         writer.write_all(newline.as_bytes())?;
         writer.flush()?;

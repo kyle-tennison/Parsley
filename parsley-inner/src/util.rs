@@ -1,9 +1,12 @@
 extern crate sha2;
-use std::{path::{Path, PathBuf}, fs, io::Read};
+use std::{
+    fs,
+    io::Read,
+    path::{Path, PathBuf},
+};
 
 use md5::Context;
 use sha2::{Digest, Sha224};
-
 
 pub fn list_dir(path: &Path) -> Result<Vec<PathBuf>, std::io::Error> {
     let mut result: Vec<PathBuf> = Vec::new();
