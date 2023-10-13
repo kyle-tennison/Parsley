@@ -14,8 +14,7 @@ use std::path::PathBuf;
 mod parser;
 use parser::Parser;
 
-extern crate sha2;
-use sha2::{Digest, Sha224};
+mod util;
 
 const PARSED_LIST_FILE: &str = "../storage/parse-list.txt";
 const CONFIG_JSON: &str = "../storage/config.json";
@@ -29,32 +28,20 @@ fn main() -> Result<(), std::io::Error> {
 
     let mut filter_queue: Vec<PathBuf> = Vec::new();
 
-    match list_dir(Path::new(start_dir)) {
-        Ok(files) => {
-            for file in files {
-                filter_queue.push(file)
-            }
-        }
-        Err(err) => {
-            eprintln!("Failed to list dir: {}", err)
-        }
+    for file  in util::list_dir(Path::new(start_dir))?{
+        filter_queue.push(file);
     }
 
     while filter_queue.len() > 0 {
         let file = filter_queue.pop().unwrap();
 
         // Add folder contents to stack if they exist
-        if is_directory(file.as_path()) {
-            match list_dir(file.as_path()) {
-                Ok(children) => {
-                    for child in children {
-                        filter_queue.push(child);
-                    }
-                }
-                Err(err) => {
-                    eprintln!("Failed to list dir: {}", err);
-                }
+        if util::is_directory(file.as_path()) {
+
+            for child in util::list_dir(file.as_path())?{
+                filter_queue.push(child);
             }
+
         }
 
         // If the contents aren't from a directory, validate they are gcode
@@ -63,16 +50,8 @@ fn main() -> Result<(), std::io::Error> {
 
             filenames.push(file.to_str().unwrap().to_string());
             let filename = filenames.last().unwrap();
-            filename_hashes.push(hash_filename(filename));
-
-            match md5_hash_file(filename) {
-                Ok(file_hash) => {
-                    file_hashes.push(file_hash);
-                }
-                Err(err) => {
-                    eprintln!("Error hashing file: {}", err);
-                }
-            }
+            filename_hashes.push(util::hash_filename(filename));
+            file_hashes.push(util::md5_hash_file(filename)?);
         }
     }
 
@@ -150,7 +129,7 @@ fn main() -> Result<(), std::io::Error> {
         parser.parse_file(file)?;
 
         // Add new hash into file
-        let newline = format!("\n{} {}", hash_filename(file), md5_hash_file(file)?).to_string();
+        let newline = format!("\n{} {}", util::hash_filename(file), util::md5_hash_file(file)?).to_string();
 
         writer.write_all(newline.as_bytes())?;
         writer.flush()?;
@@ -161,52 +140,4 @@ fn main() -> Result<(), std::io::Error> {
     fs::rename(format!("{}{}", PARSED_LIST_FILE, ".tmp"), PARSED_LIST_FILE)?;
 
     Ok(())
-}
-
-fn list_dir(path: &Path) -> Result<Vec<PathBuf>, std::io::Error> {
-    let mut result: Vec<PathBuf> = Vec::new();
-
-    for item in fs::read_dir(path)? {
-        let item = item?;
-        let item_path = item.path();
-        result.push(item_path);
-    }
-
-    Ok(result)
-}
-
-fn is_directory(path: &Path) -> bool {
-    if let Ok(metadata) = fs::metadata(path) {
-        metadata.is_dir()
-    } else {
-        false
-    }
-}
-
-fn hash_filename(filename: &String) -> String {
-    let mut hasher = Sha224::new();
-    hasher.update(filename.as_bytes());
-
-    let hash = hasher.finalize();
-    let hash_string = format!("{:x}", hash);
-
-    hash_string
-}
-
-fn md5_hash_file(file_path: &str) -> Result<String, std::io::Error> {
-    let mut file = std::fs::File::open(file_path)?;
-    let mut buffer = [0u8; 1024];
-    let mut context = Context::new();
-
-    loop {
-        match file.read(&mut buffer) {
-            Ok(0) => break,
-            Ok(n) => {
-                context.consume(&buffer[0..n]);
-            }
-            Err(e) => return Err(e),
-        }
-    }
-
-    Ok(format!("{:x}", context.compute()))
 }

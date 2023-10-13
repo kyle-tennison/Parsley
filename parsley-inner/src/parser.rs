@@ -53,7 +53,7 @@ impl Parser {
 
             for banned in &self.blacklisted_lines {
                 if line.contains(banned) {
-                    println!("Found illegal line: {}", line);
+                    println!("debug: found illegal line: {}", line);
                     valid_line = false;
                 }
             }
