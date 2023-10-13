@@ -1,6 +1,6 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
-// const path = require('node:path')
-const path = require('path')
+const path = require('node:path')
+const util = require("./local-util.js")
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -10,26 +10,31 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js')
     }
   })
-  win.loadURL(
-    isDev
-      ? 'http://localhost:3000'
-      : `file://${path.join(__dirname, '../build/index.html')}`
-  )
+  win.loadFile('index.html')
 }
 app.whenReady().then(() => {
   ipcMain.handle('ping', () => 'pong')
+  ipcMain.handle('readJson', () => {
+    return util.read_config()})
   createWindow()
 })
 
-app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
-    }
-  })
 
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
+})
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') app.quit()
+})
+
+app.whenReady().then(() => {
+    createWindow()
+
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) createWindow()
+    })
 })

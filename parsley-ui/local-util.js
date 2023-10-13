@@ -3,13 +3,13 @@ const fs = require('fs');
 const CONFIG_FILE = "../storage/config.json"
 
 
-export const BLACKLIST_MAP = {
+const BLACKLIST_MAP = {
     coolant: "m5",
     spindleStart: "replace",
     homing: "Z0",
 }
 
-export function write_to_config(object){
+function write_to_config(object){
 
     fs.writeFile(CONFIG_FILE, JSON.stringify(object), (error) => {
         if (error) throw error;
@@ -17,7 +17,8 @@ export function write_to_config(object){
     console.log("writing:", object)
 }
 
-export function read_config(){
+function read_config(){
+    console.log("reading config")
     try {
         const fileData = fs.readFileSync(CONFIG_FILE, 'utf8');
         const jsonData = JSON.parse(fileData);
@@ -26,4 +27,10 @@ export function read_config(){
         console.error(`Error reading Config Json: ${error.message}`);
         throw error
     }
+}
+
+module.exports = {
+    BLACKLIST_MAP: BLACKLIST_MAP,
+    write_to_config: write_to_config,
+    read_config: read_config,
 }
