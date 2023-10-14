@@ -1,3 +1,6 @@
+// Parsley 2023
+// Kyle Tennison
+
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const fs = require("fs");
 const path = require("node:path");
@@ -5,22 +8,22 @@ const { exec, spawn } = require("child_process");
 
 const CONFIG_FILE = path.resolve("../storage/config.json");
 
+// Load config json as object
 function readConfig() {
   try {
     const fileData = fs.readFileSync(CONFIG_FILE, "utf8");
     const jsonData = JSON.parse(fileData);
-    console.log("read config as:", jsonData);
     return jsonData;
   } catch (error) {
     console.error(`Error reading Config Json: ${error.message}`);
   }
 }
 
+// Write to config json
 function writeConfig(event, object) {
   fs.writeFile(CONFIG_FILE, JSON.stringify(object, null, 2), (error) => {
     if (error) throw error;
   });
-  console.log("writing:", object);
 
   // When we write to the config we need to clear the cache
   let cache = path.join(path.dirname(CONFIG_FILE), "parsed_list.txt");
@@ -41,11 +44,9 @@ function writeConfig(event, object) {
   });
 }
 
+// Run parse in rust
 async function runParse() {
-  console.log("running parse");
-
   let command = `../parsley-inner/target/release/parsley-inner`;
-
   let args = [await getRoot(), path.dirname(CONFIG_FILE)];
 
   console.log("Running command: ", command, args);
@@ -82,6 +83,7 @@ async function runParse() {
   });
 }
 
+// Set root in json
 async function setRoot() {
   let win = BrowserWindow.getAllWindows()[0];
   const { canceled, filePaths } = await dialog.showOpenDialog(win, {
@@ -100,10 +102,16 @@ async function setRoot() {
   }
 }
 
+// Gets root from json
 async function getRoot() {
-  return readConfig().root;
+  const root = readConfig().root 
+  if (root === undefined){
+    return "~"
+  };
+  return root;
 }
 
+// Open config with native texteditor
 function openConfig(event) {
   const command =
     process.platform === "darwin" // macOS
@@ -119,7 +127,7 @@ function openConfig(event) {
       if (error) {
         console.error(`Error opening file: ${error.message}`);
       } else {
-        console.log(`Opened config file`);
+        console.log('Opened config file');
       }
     });
   } else {
@@ -127,6 +135,7 @@ function openConfig(event) {
   }
 }
 
+// Exit app
 function exit() {
   console.log("exit app");
   closeDuplicateWindows();
@@ -137,6 +146,7 @@ function exit() {
   win.close();
 }
 
+// Minimize window
 function minimize() {
   console.log("minimize window");
   closeDuplicateWindows();
@@ -144,8 +154,8 @@ function minimize() {
   win.minimize();
 }
 
+// Force only one window open
 function closeDuplicateWindows() {
-  console.log("closing duplicates");
   if (BrowserWindow.getAllWindows().length > 1) {
     let preserved_win = false;
     for (let i in BrowserWindow.getAllWindows()) {
@@ -158,6 +168,7 @@ function closeDuplicateWindows() {
   }
 }
 
+// Creates main window
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
@@ -178,6 +189,8 @@ const createWindow = () => {
 };
 
 app.whenReady().then(() => {
+
+  // Setup ipc handlers
   ipcMain.handle("readConfig", readConfig);
   ipcMain.handle("writeConfig", writeConfig);
   ipcMain.handle("openConfig", openConfig);

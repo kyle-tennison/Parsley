@@ -1,13 +1,16 @@
-extern crate sha2;
-extern crate chrono;
+// Parsley 2023
+// Kyle Tennison
 
+extern crate chrono;
+extern crate sha2;
+
+use md5::Context;
+use sha2::{Digest, Sha224};
 use std::{
     fs,
     io::Read,
     path::{Path, PathBuf},
 };
-use md5::Context;
-use sha2::{Digest, Sha224};
 
 pub fn list_dir(path: &Path) -> Result<Vec<PathBuf>, std::io::Error> {
     let mut result: Vec<PathBuf> = Vec::new();
@@ -56,4 +59,3 @@ pub fn md5_hash_file(file_path: &str) -> Result<String, std::io::Error> {
 
     Ok(format!("{:x}", context.compute()))
 }
-

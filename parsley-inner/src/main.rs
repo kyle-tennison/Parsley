@@ -1,22 +1,19 @@
-use std::collections::HashMap;
-use std::fs;
-use std::fs::File;
-use std::fs::OpenOptions;
-use std::io::BufRead;
-use std::io::BufReader;
-use std::io::BufWriter;
-use std::io::Write;
-use std::path::Path;
-use std::path::PathBuf;
-use std::env;
+// Parsley 2023
+// Kyle Tennison
 
 mod parser;
-use parser::Parser;
-
 mod util;
 
-fn main() -> Result<(), std::io::Error> {
+use parser::Parser;
+use std::{
+    collections::HashMap,
+    env,
+    fs::{self, File, OpenOptions},
+    io::{BufRead, BufReader, BufWriter, Write},
+    path::{Path, PathBuf},
+};
 
+fn main() -> Result<(), std::io::Error> {
     // Load cli arguments
     let args: Vec<String> = env::args().collect();
 
@@ -27,10 +24,10 @@ fn main() -> Result<(), std::io::Error> {
 
     let root_dir: PathBuf;
     let storage_dir: PathBuf;
-    
-    match fs::canonicalize(&args[1]){
+
+    match fs::canonicalize(&args[1]) {
         Ok(dir) => {
-            root_dir = dir; 
+            root_dir = dir;
         }
         Err(_err) => {
             eprintln!("error: failed to find root '{}'", args[1]);
@@ -38,9 +35,9 @@ fn main() -> Result<(), std::io::Error> {
         }
     }
 
-    match fs::canonicalize(&args[2]){
+    match fs::canonicalize(&args[2]) {
         Ok(dir) => {
-            storage_dir = dir; 
+            storage_dir = dir;
         }
         Err(_err) => {
             eprintln!("error: failed to find storage dir '{}'", args[2]);
@@ -79,24 +76,24 @@ fn main() -> Result<(), std::io::Error> {
         std::process::exit(1);
     }
 
-
     println!("debug: using root {:?}", root_dir);
     println!("debug: storage dir is: {:?}", storage_dir);
 
     let mut parsed_list_file = storage_dir.join("./parsed_list.txt");
     let mut config_json = storage_dir.join("./config.json");
 
-    if let Ok(abspath) =fs::canonicalize(&parsed_list_file){
+    if let Ok(abspath) = fs::canonicalize(&parsed_list_file) {
         parsed_list_file = abspath;
-    }
-    else {
-        eprintln!("error: could not locate cache. expected {:?}", parsed_list_file);
+    } else {
+        eprintln!(
+            "error: could not locate cache. expected {:?}",
+            parsed_list_file
+        );
         std::process::exit(1);
     }
-    if let Ok(abspath) =fs::canonicalize(config_json){
+    if let Ok(abspath) = fs::canonicalize(config_json) {
         config_json = abspath;
-    }
-    else {
+    } else {
         eprintln!("error: could not locate config json");
         std::process::exit(1);
     }
@@ -124,7 +121,7 @@ fn main() -> Result<(), std::io::Error> {
             for child in util::list_dir(file.as_path())? {
                 filter_queue.push(child);
             }
-            continue
+            continue;
         }
 
         // If the contents aren't from a directory, validate they are gcode
@@ -139,7 +136,11 @@ fn main() -> Result<(), std::io::Error> {
         searched_files += 1;
     }
 
-    println!("info: searched {} files, found {} gcode files.", searched_files, filenames.len());
+    println!(
+        "info: searched {} files, found {} gcode files.",
+        searched_files,
+        filenames.len()
+    );
 
     // Make sure there are the same number of filenames as hashes
     assert!(
@@ -231,7 +232,10 @@ fn main() -> Result<(), std::io::Error> {
 
     // Replace parse-list with new one
     fs::remove_file(&parsed_list_file)?;
-    fs::rename(format!("{}{}", parsed_list_file.to_str().unwrap(), ".tmp"), parsed_list_file)?;
+    fs::rename(
+        format!("{}{}", parsed_list_file.to_str().unwrap(), ".tmp"),
+        parsed_list_file,
+    )?;
 
     Ok(())
 }

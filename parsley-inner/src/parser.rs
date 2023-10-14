@@ -1,11 +1,14 @@
+// Parsley 2023
+// Kyle Tennison
+
+use chrono::Local;
+use serde::Deserialize;
+use serde_json;
 use std::{
     fs::{self, File, OpenOptions},
     io::{BufRead, BufReader, BufWriter, Read, Write},
     path::Path,
 };
-use serde::Deserialize;
-use serde_json;
-use chrono::Local;
 
 #[derive(Deserialize)]
 struct ConfigJson {
@@ -14,7 +17,6 @@ struct ConfigJson {
 
 pub struct Parser {
     blacklist: Vec<String>,
-    // config_filename: String
 }
 
 impl Parser {
@@ -30,7 +32,6 @@ impl Parser {
 
         Ok(Parser {
             blacklist: config.blacklist,
-            // config_filename: config_json_filename.clone()
         })
     }
 
@@ -53,7 +54,7 @@ impl Parser {
 
             // Skip other signatures
             if line.contains("Parsley") {
-                continue
+                continue;
             }
 
             for banned in &self.blacklist {
@@ -92,5 +93,8 @@ pub fn format_current_date() -> String {
         _ => "th",
     };
 
-    format!("{} {}{}, {} at {}:{}{}", month, day, day_suffix, year, hour, minute, am_pm)
+    format!(
+        "{} {}{}, {} at {}:{}{}",
+        month, day, day_suffix, year, hour, minute, am_pm
+    )
 }

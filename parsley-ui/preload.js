@@ -1,3 +1,6 @@
+// Parsley 2023
+// Kyle Tennison
+
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electron", {
