@@ -1,4 +1,4 @@
-console.log("hello world")
+
 
 const BLACKLIST_MAP = {
     coolant: 'm5',
@@ -85,6 +85,27 @@ async function customLineSubmit(){
     await appendLine(line)
 }
 
+async function runParse(){
+  let consoleText = document.getElementById("consoleText")
+  let result = await window.electron.runParse();
+
+  if (result.stderr !== ""){
+    consoleText.style.color = "red"
+    consoleText.textContent = result.stderr
+  }
+  else {
+    consoleText.style.color = "black"
+    consoleText.textContent = result.stdout
+  }
+
+  console.log(result)
+
+
+  
+
+}
+
+
 // Setup event listeners
 window.addEventListener('load', async () => {
     const form = document.getElementById("config-form")
@@ -122,9 +143,17 @@ window.addEventListener('load', async () => {
         await customLineSubmit();
     })
 
-    // Open json 
+    // Listen for open json
     document.getElementById("modifyJson").addEventListener("click", async () => {
         await window.electron.openConfig();
+    })
+
+    // Listen for parse start
+    document.getElementById("start-parse").addEventListener("click", async () => {
+      let button = document.getElementById("start-parse")
+      button.disabled = true
+      await runParse()
+      button.disabled = false
     })
 
 

@@ -23,6 +23,29 @@ function writeConfig(event, object) {
       console.log('writing:', object)
 }
 
+function runParse(){
+
+  console.log("running parse")
+
+  let command = "../parsley-inner/target/release/parsley-inner"
+
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        resolve({
+          stdout: "",
+          stderr: error
+        })
+      }
+      resolve({ stdout, stderr });
+    });
+  });
+
+
+
+
+}
+
 function openConfig(event){
     const command =
     process.platform === 'darwin' // macOS
@@ -65,6 +88,7 @@ app.whenReady().then(() => {
     ipcMain.handle("readConfig", readConfig)
     ipcMain.handle("writeConfig", writeConfig)
     ipcMain.handle("openConfig", openConfig)
+    ipcMain.handle("runParse", runParse)
 
   createWindow()
   app.on('activate', () => {
