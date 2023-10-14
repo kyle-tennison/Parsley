@@ -8,17 +8,82 @@ use std::io::BufWriter;
 use std::io::Write;
 use std::path::Path;
 use std::path::PathBuf;
+use std::env;
 
 mod parser;
 use parser::Parser;
 
 mod util;
 
-const PARSED_LIST_FILE: &str = "../storage/parse-list.txt";
-const CONFIG_JSON: &str = "../storage/config.json";
-
 fn main() -> Result<(), std::io::Error> {
-    let start_dir = "..";
+
+    // Load cli arguments
+    let args: Vec<String> = env::args().collect();
+
+    if args.len() < 2 {
+        eprintln!("error: no root specified.\nUsage: parsley-inner <root-dir>");
+        std::process::exit(1);
+    }
+
+    let root_dir: PathBuf;
+    
+    match fs::canonicalize(&args[1]){
+        Ok(dir) => {
+            root_dir = dir; 
+        }
+        Err(_err) => {
+            eprintln!("error: failed to find specified path '{}'", args[1]);
+            std::process::exit(1)
+        }
+    }
+
+    // Verify that filepath is valid
+    if let Ok(metadata) = fs::metadata(&root_dir) {
+        if metadata.is_file() {
+            eprintln!("error: root {:?} is a file, not a dir", root_dir);
+            std::process::exit(1)
+        } else if metadata.is_dir() {
+            // Everything is good
+        } else {
+            eprintln!("error: root {:?} does not exist", root_dir);
+            std::process::exit(1);
+        }
+    } else {
+        println!("File does not exist: {:?}", root_dir);
+    }
+
+
+    println!("debug: using root {:?}", root_dir);
+
+
+    // Locate storage files
+    let code_path = Path::new(file!());
+    let repo_dir = fs::canonicalize(code_path.join("../../.."))?;
+
+    println!("debug: repo dir is: {:?}", repo_dir);
+
+    let mut parsed_list_file = repo_dir.join("./storage/parsed_list.txt");
+    let mut config_json = repo_dir.join("./storage/config.json");
+
+    if let Ok(abspath) =fs::canonicalize(parsed_list_file){
+        parsed_list_file = abspath;
+    }
+    else {
+        eprintln!("error: could not locate cache");
+        std::process::exit(1);
+    }
+    if let Ok(abspath) =fs::canonicalize(config_json){
+        config_json = abspath;
+    }
+    else {
+        eprintln!("error: could not locate config json");
+        std::process::exit(1);
+    }
+
+
+
+    println!("debug: located config json at {:?}", config_json);
+    println!("debug: located cache at {:?}", &parsed_list_file);
 
     let mut filenames: Vec<String> = Vec::new();
     let mut filename_hashes: Vec<String> = Vec::new();
@@ -26,7 +91,7 @@ fn main() -> Result<(), std::io::Error> {
 
     let mut filter_queue: Vec<PathBuf> = Vec::new();
 
-    for file in util::list_dir(Path::new(start_dir))? {
+    for file in util::list_dir(Path::new(&root_dir))? {
         filter_queue.push(file);
     }
 
@@ -59,7 +124,7 @@ fn main() -> Result<(), std::io::Error> {
 
     // Load Previously Parsed Files
     let mut previously_parsed: HashMap<String, String> = HashMap::new();
-    let hashes_file = File::open(PARSED_LIST_FILE)?;
+    let hashes_file = File::open(&parsed_list_file)?;
     let reader = BufReader::new(hashes_file);
 
     for line in reader.lines() {
@@ -72,8 +137,8 @@ fn main() -> Result<(), std::io::Error> {
         let split: Vec<&str> = line.split(" ").collect();
 
         if split.len() < 2 {
-            eprintln!("error: invalid hashes file '{}'", PARSED_LIST_FILE);
-            return Ok(());
+            eprintln!("error: invalid hashes file in cache");
+            std::process::exit(1);
         }
 
         let filename_hash = split[0].to_string();
@@ -86,7 +151,7 @@ fn main() -> Result<(), std::io::Error> {
     let tmp_copy = OpenOptions::new() // This will replace the existing parse list
         .write(true)
         .create(true)
-        .open(format!("{}{}", PARSED_LIST_FILE, ".tmp"))
+        .open(format!("{}{}", parsed_list_file.to_str().unwrap(), ".tmp"))
         .unwrap();
     let mut writer = BufWriter::new(&tmp_copy);
 
@@ -117,9 +182,9 @@ fn main() -> Result<(), std::io::Error> {
 
     // Parse files
     println!("info: found {} files to parse", parse_queue.len());
-    let parser = Parser::new(&CONFIG_JSON.to_string())?;
+    let parser = Parser::new(&config_json.to_str().unwrap().to_string())?;
     for file in &parse_queue {
-        println!("info: parsing {}", file);
+        println!("debug: parsing {}", file);
 
         // parse the file
         parser.parse_file(file)?;
@@ -137,8 +202,8 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     // Replace parse-list with new one
-    fs::remove_file(PARSED_LIST_FILE)?;
-    fs::rename(format!("{}{}", PARSED_LIST_FILE, ".tmp"), PARSED_LIST_FILE)?;
+    fs::remove_file(&parsed_list_file)?;
+    fs::rename(format!("{}{}", parsed_list_file.to_str().unwrap(), ".tmp"), parsed_list_file)?;
 
     Ok(())
 }
