@@ -1,10 +1,11 @@
 extern crate sha2;
+extern crate chrono;
+
 use std::{
     fs,
     io::Read,
     path::{Path, PathBuf},
 };
-
 use md5::Context;
 use sha2::{Digest, Sha224};
 
@@ -55,3 +56,4 @@ pub fn md5_hash_file(file_path: &str) -> Result<String, std::io::Error> {
 
     Ok(format!("{:x}", context.compute()))
 }
+

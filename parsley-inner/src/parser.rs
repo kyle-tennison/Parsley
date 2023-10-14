@@ -1,14 +1,11 @@
-// extern crate serde;
-// extern crate serde_json;
-
 use std::{
     fs::{self, File, OpenOptions},
     io::{BufRead, BufReader, BufWriter, Read, Write},
     path::Path,
 };
-
 use serde::Deserialize;
 use serde_json;
+use chrono::Local;
 
 #[derive(Deserialize)]
 struct ConfigJson {
@@ -40,6 +37,7 @@ impl Parser {
     pub fn parse_file(&self, filename: &String) -> Result<bool, std::io::Error> {
         let file = File::open(filename)?;
         let reader = BufReader::new(&file);
+        let signature = format!("(Parsed by Parsley on {})", format_current_date());
 
         let file_copy = OpenOptions::new()
             .write(true)
@@ -47,9 +45,16 @@ impl Parser {
             .open(format!("{}.tmp", filename))?;
         let mut writer = BufWriter::new(&file_copy);
 
+        writer.write_all(signature.as_bytes())?;
+
         for line in reader.lines() {
             let line = line?;
             let mut valid_line = true;
+
+            // Skip other signatures
+            if line.contains("Parsley") {
+                continue
+            }
 
             for banned in &self.blacklist {
                 if line.contains(banned) {
@@ -69,4 +74,23 @@ impl Parser {
 
         Ok(true)
     }
+}
+
+pub fn format_current_date() -> String {
+    let now = Local::now();
+    let month = now.format("%b").to_string();
+    let day = now.format("%e").to_string();
+    let year = now.format("%Y").to_string();
+    let hour = now.format("%I").to_string();
+    let minute = now.format("%M").to_string();
+    let am_pm = now.format("%P").to_string();
+
+    let day_suffix = match day.as_str().trim() {
+        "1" | "21" | "31" => "st",
+        "2" | "22" => "nd",
+        "3" | "23" => "rd",
+        _ => "th",
+    };
+
+    format!("{} {}{}, {} at {}:{}{}", month, day, day_suffix, year, hour, minute, am_pm)
 }
