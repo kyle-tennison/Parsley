@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -11,7 +11,7 @@
       http-equiv="X-Content-Security-Policy"
       content="default-src 'self'; script-src 'self'"
     />
-    <link rel="stylesheet" type="text/css" href="home.css">
+    <link rel="stylesheet" type="text/css" href="home.css" />
     <title>Hello from Electron renderer!</title>
   </head>
   <body>
@@ -26,19 +26,23 @@
             <h3>Set Blacklist</h3>
             <form id="config-form">
               <div>
-                <input id="coolantCheckbox" type="checkbox"/>
+                <input id="coolantCheckbox" type="checkbox" />
                 <label>Disable Coolant</label>
               </div>
               <div>
-                <input id="homingCheckbox" type="checkbox"/>
+                <input id="homingCheckbox" type="checkbox" />
                 <label>Disable Homing</label>
               </div>
               <div>
-                <input id="restartCheckbox" type="checkbox"/>
+                <input id="restartCheckbox" type="checkbox" />
                 <label>Disable Spindle Restart</label>
               </div>
               <div>
-                <input id="customBlock" type="textentry" placeholder="Block Custom Line">
+                <input
+                  id="customBlock"
+                  type="textentry"
+                  placeholder="Block Custom Line"
+                />
                 <button id="submitCustomBlock">Block</button>
               </div>
               <div>
@@ -53,8 +57,6 @@
           </div>
         </div>
       </div>
-
-
     </div>
   </body>
 </html>

@@ -1,58 +1,53 @@
-const { app, BrowserWindow,ipcMain } = require('electron')
-const fs = require('fs')
-const path = require("node:path")
-const { exec } = require('child_process');
+const { app, BrowserWindow, ipcMain } = require("electron");
+const fs = require("fs");
+const path = require("node:path");
+const { exec } = require("child_process");
 
-const CONFIG_FILE = '../storage/config.json'
+const CONFIG_FILE = "../storage/config.json";
 
 function readConfig() {
-    try {
-      const fileData = fs.readFileSync(CONFIG_FILE, 'utf8')
-      const jsonData = JSON.parse(fileData)
-      console.log('read config as:', jsonData)
-      return jsonData
-    } catch (error) {
-      console.error(`Error reading Config Json: ${error.message}`)
-    }
+  try {
+    const fileData = fs.readFileSync(CONFIG_FILE, "utf8");
+    const jsonData = JSON.parse(fileData);
+    console.log("read config as:", jsonData);
+    return jsonData;
+  } catch (error) {
+    console.error(`Error reading Config Json: ${error.message}`);
   }
-
-function writeConfig(event, object) {
-    fs.writeFile(CONFIG_FILE, JSON.stringify(object, null, 2), error => {
-        if (error) throw error
-      })
-      console.log('writing:', object)
 }
 
-function runParse(){
+function writeConfig(event, object) {
+  fs.writeFile(CONFIG_FILE, JSON.stringify(object, null, 2), (error) => {
+    if (error) throw error;
+  });
+  console.log("writing:", object);
+}
 
-  console.log("running parse")
+function runParse() {
+  console.log("running parse");
 
-  let command = "../parsley-inner/target/release/parsley-inner"
+  let command = "../parsley-inner/target/release/parsley-inner";
 
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
         resolve({
           stdout: "",
-          stderr: error
-        })
+          stderr: error,
+        });
       }
       resolve({ stdout, stderr });
     });
   });
-
-
-
-
 }
 
-function openConfig(event){
-    const command =
-    process.platform === 'darwin' // macOS
+function openConfig(event) {
+  const command =
+    process.platform === "darwin" // macOS
       ? `open -a TextEdit "${CONFIG_FILE}"`
-      : process.platform === 'win32' // Windows
+      : process.platform === "win32" // Windows
       ? `start notepad "${CONFIG_FILE}"`
-      : process.platform === 'linux' // Linux (GNOME)
+      : process.platform === "linux" // Linux (GNOME)
       ? `gnome-open "${CONFIG_FILE}"`
       : null; // Unknown platform
 
@@ -65,7 +60,7 @@ function openConfig(event){
       }
     });
   } else {
-    console.error('Unsupported platform');
+    console.error("Unsupported platform");
   }
 }
 
@@ -74,32 +69,29 @@ const createWindow = () => {
     width: 800,
     height: 600,
     webPreferences: {
-        preload: path.join(__dirname, 'preload.js')
-      }
-  })
+      preload: path.join(__dirname, "preload.js"),
+    },
+  });
 
-  win.loadFile(
-    path.join(__dirname,'public/index.html' )
-    )
-}
+  win.loadFile(path.join(__dirname, "public/index.html"));
+};
 
 app.whenReady().then(() => {
+  ipcMain.handle("readConfig", readConfig);
+  ipcMain.handle("writeConfig", writeConfig);
+  ipcMain.handle("openConfig", openConfig);
+  ipcMain.handle("runParse", runParse);
 
-    ipcMain.handle("readConfig", readConfig)
-    ipcMain.handle("writeConfig", writeConfig)
-    ipcMain.handle("openConfig", openConfig)
-    ipcMain.handle("runParse", runParse)
-
-  createWindow()
-  app.on('activate', () => {
+  createWindow();
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow()
+      createWindow();
     }
-  })
-})
+  });
+});
 
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit()
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
+    app.quit();
   }
-})
+});
