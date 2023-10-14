@@ -20,24 +20,35 @@ fn main() -> Result<(), std::io::Error> {
     // Load cli arguments
     let args: Vec<String> = env::args().collect();
 
-    if args.len() < 2 {
-        eprintln!("error: no root specified.\nUsage: parsley-inner <root-dir>");
+    if args.len() < 3 {
+        eprintln!("error: missing arguments.\nUsage: parsley-inner <root-dir> <storage-dir>");
         std::process::exit(1);
     }
 
     let root_dir: PathBuf;
+    let storage_dir: PathBuf;
     
     match fs::canonicalize(&args[1]){
         Ok(dir) => {
             root_dir = dir; 
         }
         Err(_err) => {
-            eprintln!("error: failed to find specified path '{}'", args[1]);
+            eprintln!("error: failed to find root '{}'", args[1]);
             std::process::exit(1)
         }
     }
 
-    // Verify that filepath is valid
+    match fs::canonicalize(&args[2]){
+        Ok(dir) => {
+            storage_dir = dir; 
+        }
+        Err(_err) => {
+            eprintln!("error: failed to find storage dir '{}'", args[2]);
+            std::process::exit(1)
+        }
+    }
+
+    // Verify that filepaths are valid
     if let Ok(metadata) = fs::metadata(&root_dir) {
         if metadata.is_file() {
             eprintln!("error: root {:?} is a file, not a dir", root_dir);
@@ -49,27 +60,37 @@ fn main() -> Result<(), std::io::Error> {
             std::process::exit(1);
         }
     } else {
-        println!("File does not exist: {:?}", root_dir);
+        eprintln!("error: root {:?} does not exist", root_dir);
+        std::process::exit(1);
+    }
+
+    if let Ok(metadata) = fs::metadata(&storage_dir) {
+        if metadata.is_file() {
+            eprintln!("error: root {:?} is a file, not a dir", storage_dir);
+            std::process::exit(1)
+        } else if metadata.is_dir() {
+            // Everything is good
+        } else {
+            eprintln!("error: storage dir {:?} does not exist", storage_dir);
+            std::process::exit(1);
+        }
+    } else {
+        eprintln!("error: storage dir {:?} does not exist", storage_dir);
+        std::process::exit(1);
     }
 
 
     println!("debug: using root {:?}", root_dir);
+    println!("debug: storage dir is: {:?}", storage_dir);
 
+    let mut parsed_list_file = storage_dir.join("./parsed_list.txt");
+    let mut config_json = storage_dir.join("./config.json");
 
-    // Locate storage files
-    let code_path = Path::new(file!());
-    let repo_dir = fs::canonicalize(code_path.join("../../.."))?;
-
-    println!("debug: repo dir is: {:?}", repo_dir);
-
-    let mut parsed_list_file = repo_dir.join("./storage/parsed_list.txt");
-    let mut config_json = repo_dir.join("./storage/config.json");
-
-    if let Ok(abspath) =fs::canonicalize(parsed_list_file){
+    if let Ok(abspath) =fs::canonicalize(&parsed_list_file){
         parsed_list_file = abspath;
     }
     else {
-        eprintln!("error: could not locate cache");
+        eprintln!("error: could not locate cache. expected {:?}", parsed_list_file);
         std::process::exit(1);
     }
     if let Ok(abspath) =fs::canonicalize(config_json){
@@ -79,8 +100,6 @@ fn main() -> Result<(), std::io::Error> {
         eprintln!("error: could not locate config json");
         std::process::exit(1);
     }
-
-
 
     println!("debug: located config json at {:?}", config_json);
     println!("debug: located cache at {:?}", &parsed_list_file);

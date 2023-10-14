@@ -8,18 +8,7 @@
   text-align: center;
   font-size: 50px;
   font-weight: 300;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   margin-bottom: 10px;
 }
 #home-page .subtitle {
@@ -27,18 +16,7 @@
   text-align: center;
   font-size: 20px;
   font-weight: 300;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   padding-bottom: 10px;
   margin: 0px 10% 0px 10%;
 }
@@ -61,18 +39,7 @@
   padding: 10px 20px;
   font-size: 20px;
   color: white;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   font-weight: 200;
   box-shadow: 0px 3px 5px #666666;
 }
@@ -80,20 +47,14 @@
   box-shadow: 0px 5px 5px #666666;
   transform: translateY(-2px);
 }
+#home-page #start-parse:disabled {
+  transform: translateY(1px);
+  box-shadow: 0px 2px 5px #666666;
+  opacity: 80%;
+}
 #home-page #controls-container {
   margin-top: 10px;
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    Roboto,
-    Oxygen,
-    Ubuntu,
-    Cantarell,
-    "Open Sans",
-    "Helvetica Neue",
-    sans-serif;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
   margin-left: 20px;
   color: black;
 }
@@ -135,7 +96,7 @@
   padding: 8px;
   font-size: 15px;
 }
-#home-page #controls-container #modifyJson {
+#home-page #controls-container .modify-btn {
   position: relative;
   top: 30px;
   border-color: gray;
@@ -143,8 +104,12 @@
   padding: 5px;
   font-size: 13px;
 }
-#home-page #controls-container #modifyJson:hover {
+#home-page #controls-container .modify-btn:hover {
   color: white;
+}
+#home-page #controls-container #root-text {
+  position: relative;
+  top: 15px;
 }
 #home-page #console {
   position: relative;
@@ -183,4 +148,4 @@
   100% {
     background-position: 0% 50%;
   }
-} /*# sourceMappingURL=home.css.map */
+}/*# sourceMappingURL=home.css.map */

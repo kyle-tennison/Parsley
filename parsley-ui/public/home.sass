@@ -55,6 +55,11 @@
         box-shadow: 0px 5px 5px mix(black, white, 60%)
         transform: translateY(-2px)
 
+    #start-parse:disabled
+        transform: translateY(1px)
+        box-shadow: 0px 2px 5px mix(black, white, 60%)
+        opacity: 80%
+
     #controls-container
         margin-top: 10px
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
@@ -102,7 +107,7 @@
             padding: 8px
             font-size: 15px
 
-        #modifyJson
+        .modify-btn
             position: relative
             top: 30px
             
@@ -111,8 +116,12 @@
             padding: 5px
             font-size: 13px
 
-        #modifyJson:hover
+        .modify-btn:hover
             color: white
+
+        #root-text
+            position: relative
+            top: 15px
 
 
     #console

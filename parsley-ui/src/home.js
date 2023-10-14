@@ -87,11 +87,13 @@ async function runParse() {
 
   if (result.stderr !== "") {
     consoleText.style.color = "red";
-    consoleText.textContent = result.stderr;
+    consoleText.textContent = result.stdout + "\n---\n" + result.stderr;
   } else {
     consoleText.style.color = "black";
     consoleText.textContent = result.stdout;
   }
+
+  consoleText.innerHTML = consoleText.textContent.replace(/\n/g, "<br>");
 
   console.log(result);
 }
@@ -138,13 +140,22 @@ window.addEventListener("load", async () => {
     await window.electron.openConfig();
   });
 
+  // Listen for set root
+  document.getElementById("modifyRoot").addEventListener("click", async () => {
+    await window.electron.setRoot();
+  });
+
   // Listen for parse start
   document.getElementById("start-parse").addEventListener("click", async () => {
     let button = document.getElementById("start-parse");
     button.disabled = true;
+    document.getElementById("consoleText").textContent = ""
     await runParse();
     button.disabled = false;
   });
+
+  // Set root text
+  document.getElementById("root-text").textContent = "Root: " + await window.electron.getRoot()
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();

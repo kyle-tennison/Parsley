@@ -5,4 +5,6 @@ contextBridge.exposeInMainWorld("electron", {
   writeConfig: (config) => ipcRenderer.invoke("writeConfig", config),
   openConfig: () => ipcRenderer.invoke("openConfig"),
   runParse: () => ipcRenderer.invoke("runParse"),
+  setRoot: () => ipcRenderer.invoke("setRoot"),
+  getRoot: () => ipcRenderer.invoke("getRoot"),
 });

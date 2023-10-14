@@ -1,9 +1,9 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const fs = require("fs");
 const path = require("node:path");
 const { exec } = require("child_process");
 
-const CONFIG_FILE = "../storage/config.json";
+const CONFIG_FILE = path.resolve("../storage/config.json");
 
 function readConfig() {
   try {
@@ -23,16 +23,17 @@ function writeConfig(event, object) {
   console.log("writing:", object);
 }
 
-function runParse() {
+async function runParse() {
   console.log("running parse");
 
-  let command = "../parsley-inner/target/release/parsley-inner";
+  let command = `../parsley-inner/target/release/parsley-inner ${await getRoot()} ${path.dirname(CONFIG_FILE)}`;
+  console.log("Running command: ", command)
 
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
         resolve({
-          stdout: "",
+          stdout: stdout,
           stderr: error,
         });
       }
@@ -40,6 +41,29 @@ function runParse() {
     });
   });
 }
+
+async function setRoot(win){
+  const { canceled, filePaths } = await dialog.showOpenDialog(win, {
+    properties: ['openDirectory']
+  })
+  if (canceled) {
+    return
+  } else {
+
+    let root = filePaths[0]
+
+    console.log("setting root to", root)
+
+    let config = readConfig()
+    config.root = root
+    writeConfig(null, config);
+  }
+}
+
+async function getRoot(){
+  return readConfig().root
+}
+
 
 function openConfig(event) {
   const command =
@@ -74,6 +98,8 @@ const createWindow = () => {
   });
 
   win.loadFile(path.join(__dirname, "public/index.html"));
+
+  return win
 };
 
 app.whenReady().then(() => {
@@ -81,8 +107,12 @@ app.whenReady().then(() => {
   ipcMain.handle("writeConfig", writeConfig);
   ipcMain.handle("openConfig", openConfig);
   ipcMain.handle("runParse", runParse);
+  ipcMain.handle("getRoot", getRoot);
+  
+  const win = createWindow();
+  ipcMain.handle("setRoot", () => {setRoot(win)});
 
-  createWindow();
+
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();

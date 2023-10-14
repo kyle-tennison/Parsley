@@ -1,3 +1,9 @@
 {
-  "blacklist": ["test", "123", "custom line"]
+  "blacklist": [
+    "m5",
+    "test",
+    "123",
+    "custom line"
+  ],
+  "root": "/Users/kyletennison/Desktop"
 }
