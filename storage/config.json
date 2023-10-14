@@ -1,1 +1,9 @@
-{ "blacklist": ["test", "123", "1234", "abcd"] }
+{
+  "blacklist": [
+    "test",
+    "123",
+    "1234",
+    "abcd",
+    ""
+  ]
+}

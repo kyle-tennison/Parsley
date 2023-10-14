@@ -1,4 +1,4 @@
-import { writeConfig, readConfig, BLACKLIST_MAP } from '../util'
+import { writeConfig, readConfig, BLACKLIST_MAP, openJson } from '../util'
 import { useState, useEffect } from 'react'
 
 export function ConfigSelector() {
@@ -47,6 +47,10 @@ export function ConfigSelector() {
   }, [coolantBlock, homingBlock, spindleStartBlock])
 
   function appendLine(line) {
+    if (line === ""){
+        console.log("line is empty, skipping")
+        return
+    }
     let current_config = readConfig()
     console.log('pre-modify is:', current_config.blacklist)
     let blacklist = current_config.blacklist
@@ -62,6 +66,7 @@ export function ConfigSelector() {
     console.log('new config:', current_config)
     writeConfig(current_config)
   }
+
 
   return (
     <div id="config-selector">
@@ -115,12 +120,23 @@ export function ConfigSelector() {
             }}
           />
           <button
+            id="submitCustomBlock"
             onClick={e => {
               appendLine(customLine)
               setCustomLine('')
             }}
           >
             Block
+          </button>
+          </div>
+          <div>
+          <button
+            id="modifyJson"
+            onClick={e => {
+              openJson()
+            }}
+          >
+            Modify Json
           </button>
         </div>
       </form>
