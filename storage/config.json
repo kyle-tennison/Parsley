@@ -1,5 +1,3 @@
 {
-    "blacklisted_lines" : [
-        "BADLINE"
-    ]
+  "blacklist": ["test", "123", "custom line"]
 }

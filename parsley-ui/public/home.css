@@ -1,0 +1,186 @@
+#home-page {
+  text-align: center;
+}
+#home-page button {
+  cursor: pointer;
+}
+#home-page h1 {
+  text-align: center;
+  font-size: 50px;
+  font-weight: 300;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  margin-bottom: 10px;
+}
+#home-page .subtitle {
+  text-transform: lowercase;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 300;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  padding-bottom: 10px;
+  margin: 0px 10% 0px 10%;
+}
+#home-page .divider {
+  border-bottom: 1px solid black;
+}
+#home-page #start-parse {
+  transition: 0.2s;
+  display: inline-block;
+  border-radius: 5px;
+  position: relative;
+  top: 20px;
+  border: 1px solid black;
+  background: linear-gradient(-45deg, #c77055, #c74e7c, #4ca6c6, #4cc9ae);
+  animation: gradient 15s ease infinite;
+  background-size: 400% 400%;
+  color: black;
+  font-weight: 300;
+  margin-top: 10px;
+  padding: 10px 20px;
+  font-size: 20px;
+  color: white;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  font-weight: 200;
+  box-shadow: 0px 3px 5px #666666;
+}
+#home-page #start-parse:hover {
+  box-shadow: 0px 5px 5px #666666;
+  transform: translateY(-2px);
+}
+#home-page #controls-container {
+  margin-top: 10px;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
+  margin-left: 20px;
+  color: black;
+}
+#home-page #controls-container #config-selector {
+  text-align: left;
+}
+#home-page #controls-container h3 {
+  font-size: 20px;
+  font-weight: 400;
+}
+#home-page #controls-container input {
+  font-size: 15px;
+  margin-bottom: 10px;
+  font-weight: 300;
+  margin-left: 10px;
+}
+#home-page #controls-container label {
+  margin-left: 10px;
+}
+#home-page #controls-container button {
+  margin-top: 10px;
+  transition: 0.15s;
+  font-size: 15px;
+  font-weight: 400;
+  margin-left: 10px;
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 4px;
+  padding: 8px;
+}
+#home-page #controls-container button:hover {
+  font-weight: 100;
+  background-color: #887ec9;
+  color: white;
+}
+#home-page #controls-container #customBlock {
+  border: 1px solid black;
+  border-radius: 4px;
+  padding: 8px;
+  font-size: 15px;
+}
+#home-page #controls-container #modifyJson {
+  position: relative;
+  top: 30px;
+  border-color: gray;
+  color: gray;
+  padding: 5px;
+  font-size: 13px;
+}
+#home-page #controls-container #modifyJson:hover {
+  color: white;
+}
+#home-page #console {
+  position: relative;
+  top: 25px;
+  background-color: #d2d2d2;
+  height: 200px;
+  margin: 10px;
+  border-radius: 10px;
+  border: 1px solid black;
+  overflow: scroll;
+}
+#home-page #console p {
+  padding: 15px;
+  text-align: left;
+  word-wrap: break-word;
+  font-size: 12px;
+  font-family: "Courier New", Courier, monospace;
+  position: relative;
+  margin: 0;
+}
+#home-page .right {
+  width: 50%;
+  float: right;
+}
+#home-page .left {
+  width: 50%;
+  float: left;
+}
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+} /*# sourceMappingURL=home.css.map */

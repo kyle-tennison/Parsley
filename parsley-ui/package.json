@@ -1,0 +1,15 @@
+{
+  "name": "parsley-ui",
+  "version": "1.0.0",
+  "description": "UI For Parsley",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kyle Tennison",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^27.0.0"
+  }
+}

@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <link rel="stylesheet" type="text/css" href="home.css" />
+    <title>Hello from Electron renderer!</title>
+  </head>
+  <body>
+    <script src="../src/home.js"></script>
+    <div id="home-page">
+      <h1>Parsley</h1>
+      <div class="subtitle divider">A minimal gcode parser</div>
+      <button id="start-parse">Parse Now</button>
+      <div id="controls-container">
+        <div class="left">
+          <div id="config-selector">
+            <h3>Set Blacklist</h3>
+            <form id="config-form">
+              <div>
+                <input id="coolantCheckbox" type="checkbox" />
+                <label>Disable Coolant</label>
+              </div>
+              <div>
+                <input id="homingCheckbox" type="checkbox" />
+                <label>Disable Homing</label>
+              </div>
+              <div>
+                <input id="restartCheckbox" type="checkbox" />
+                <label>Disable Spindle Restart</label>
+              </div>
+              <div>
+                <input
+                  id="customBlock"
+                  type="textentry"
+                  placeholder="Block Custom Line"
+                />
+                <button id="submitCustomBlock">Block</button>
+              </div>
+              <div>
+                <button id="modifyJson">Modify Json</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <div class="right">
+          <div id="console">
+            <p id="consoleText"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
