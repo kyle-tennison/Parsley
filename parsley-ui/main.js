@@ -26,8 +26,10 @@ function writeConfig(event, object) {
 async function runParse() {
   console.log("running parse");
 
-  let command = `../parsley-inner/target/release/parsley-inner ${await getRoot()} ${path.dirname(CONFIG_FILE)}`;
-  console.log("Running command: ", command)
+  let command = `../parsley-inner/target/release/parsley-inner ${await getRoot()} ${path.dirname(
+    CONFIG_FILE,
+  )}`;
+  console.log("Running command: ", command);
 
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
@@ -42,28 +44,26 @@ async function runParse() {
   });
 }
 
-async function setRoot(win){
+async function setRoot(win) {
   const { canceled, filePaths } = await dialog.showOpenDialog(win, {
-    properties: ['openDirectory']
-  })
+    properties: ["openDirectory"],
+  });
   if (canceled) {
-    return
+    return;
   } else {
+    let root = filePaths[0];
 
-    let root = filePaths[0]
+    console.log("setting root to", root);
 
-    console.log("setting root to", root)
-
-    let config = readConfig()
-    config.root = root
+    let config = readConfig();
+    config.root = root;
     writeConfig(null, config);
   }
 }
 
-async function getRoot(){
-  return readConfig().root
+async function getRoot() {
+  return readConfig().root;
 }
-
 
 function openConfig(event) {
   const command =
@@ -92,6 +92,11 @@ const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
+    minWidth: 525,
+    maxWidth: 900,
+    minHeight: 350,
+    maxHeight: 750,
+    frame: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
@@ -99,7 +104,7 @@ const createWindow = () => {
 
   win.loadFile(path.join(__dirname, "public/index.html"));
 
-  return win
+  return win;
 };
 
 app.whenReady().then(() => {
@@ -108,10 +113,11 @@ app.whenReady().then(() => {
   ipcMain.handle("openConfig", openConfig);
   ipcMain.handle("runParse", runParse);
   ipcMain.handle("getRoot", getRoot);
-  
-  const win = createWindow();
-  ipcMain.handle("setRoot", () => {setRoot(win)});
 
+  const win = createWindow();
+  ipcMain.handle("setRoot", () => {
+    setRoot(win);
+  });
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {

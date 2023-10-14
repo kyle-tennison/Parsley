@@ -149,13 +149,14 @@ window.addEventListener("load", async () => {
   document.getElementById("start-parse").addEventListener("click", async () => {
     let button = document.getElementById("start-parse");
     button.disabled = true;
-    document.getElementById("consoleText").textContent = ""
+    document.getElementById("consoleText").textContent = "";
     await runParse();
     button.disabled = false;
   });
 
   // Set root text
-  document.getElementById("root-text").textContent = "Root: " + await window.electron.getRoot()
+  document.getElementById("root-text").textContent =
+    "Root: " + (await window.electron.getRoot());
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();

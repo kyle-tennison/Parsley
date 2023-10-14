@@ -1,4 +1,72 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(-45deg, #c77055, #c74e7c, #4ca6c6, #4cc9ae);
+  animation: gradient 15s ease infinite;
+  background-size: 400% 400%;
+}
+
+#frame {
+  margin: 0;
+  padding: 0;
+  background-color: rgba(32, 32, 32, 0.4);
+  width: 100%;
+  position: absolute;
+  height: 35px;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  text-align: right;
+}
+#frame button {
+  transition: 0.2s;
+  background-color: rgba(0, 0, 0, 0);
+  position: relative;
+  right: 10px;
+  top: 5px;
+  border: none;
+  background: none;
+  color: white;
+  filter: invert(100%);
+  z-index: 999;
+  border-radius: 7px;
+}
+#frame button:hover {
+  background-color: rgba(0, 0, 0, 0.1333333333);
+  cursor: pointer;
+}
+#frame img {
+  position: relative;
+  top: 2px;
+  padding: 0;
+  margin: 0;
+  height: 21px;
+}
+#frame #drag-region {
+  margin: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% - 80px);
+  z-index: 9999;
+  height: 100%;
+  -webkit-app-region: drag;
+}
+
 #home-page {
+  position: absolute;
+  top: 35px;
+  left: 50%;
+  transform: translate(-50%, 0);
+  width: 95%;
+  border-radius: 20px;
+  height: 600px;
+  background-color: white;
   text-align: center;
 }
 #home-page button {
@@ -8,7 +76,18 @@
   text-align: center;
   font-size: 50px;
   font-weight: 300;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
   margin-bottom: 10px;
 }
 #home-page .subtitle {
@@ -16,12 +95,23 @@
   text-align: center;
   font-size: 20px;
   font-weight: 300;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
   padding-bottom: 10px;
   margin: 0px 10% 0px 10%;
 }
 #home-page .divider {
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid #202020;
 }
 #home-page #start-parse {
   transition: 0.2s;
@@ -29,34 +119,56 @@
   border-radius: 5px;
   position: relative;
   top: 20px;
-  border: 1px solid black;
+  border: 1px solid #202020;
   background: linear-gradient(-45deg, #c77055, #c74e7c, #4ca6c6, #4cc9ae);
   animation: gradient 15s ease infinite;
   background-size: 400% 400%;
-  color: black;
+  color: #202020;
   font-weight: 300;
   margin-top: 10px;
   padding: 10px 20px;
   font-size: 20px;
   color: white;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
   font-weight: 200;
-  box-shadow: 0px 3px 5px #666666;
+  box-shadow: 0px 3px 5px #797979;
 }
 #home-page #start-parse:hover {
-  box-shadow: 0px 5px 5px #666666;
+  box-shadow: 0px 5px 5px #797979;
   transform: translateY(-2px);
 }
 #home-page #start-parse:disabled {
   transform: translateY(1px);
-  box-shadow: 0px 2px 5px #666666;
+  box-shadow: 0px 2px 5px #797979;
   opacity: 80%;
 }
 #home-page #controls-container {
   margin-top: 10px;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    "Open Sans",
+    "Helvetica Neue",
+    sans-serif;
   margin-left: 20px;
-  color: black;
+  color: #202020;
 }
 #home-page #controls-container #config-selector {
   text-align: left;
@@ -81,7 +193,7 @@
   font-weight: 400;
   margin-left: 10px;
   background-color: white;
-  border: 1px solid black;
+  border: 1px solid #202020;
   border-radius: 4px;
   padding: 8px;
 }
@@ -91,7 +203,7 @@
   color: white;
 }
 #home-page #controls-container #customBlock {
-  border: 1px solid black;
+  border: 1px solid #202020;
   border-radius: 4px;
   padding: 8px;
   font-size: 15px;
@@ -116,9 +228,9 @@
   top: 25px;
   background-color: #d2d2d2;
   height: 200px;
-  margin: 10px;
+  margin: 10px 20px 0px 0px;
   border-radius: 10px;
-  border: 1px solid black;
+  border: 1px solid #202020;
   overflow: scroll;
 }
 #home-page #console p {
@@ -131,13 +243,14 @@
   margin: 0;
 }
 #home-page .right {
-  width: 50%;
+  width: 60%;
   float: right;
 }
 #home-page .left {
-  width: 50%;
+  width: 40%;
   float: left;
 }
+
 @keyframes gradient {
   0% {
     background-position: 0% 50%;
@@ -148,4 +261,4 @@
   100% {
     background-position: 0% 50%;
   }
-}/*# sourceMappingURL=home.css.map */
+} /*# sourceMappingURL=home.css.map */

@@ -1,4 +1,85 @@
+html, body 
+    margin: 0
+    padding: 0
+    position: relative
+    overflow: hidden
+
+    width: 100%
+    height: 100%
+
+    background: linear-gradient(-45deg, #c77055, #c74e7c, #4ca6c6, #4cc9ae)
+    animation: gradient 15s ease infinite
+    background-size: 400% 400%
+    
+$frame_depth: 35px
+
+#frame
+    margin: 0
+    padding: 0
+    background-color: #20202066
+    width: 100%
+    position: absolute
+    height: $frame_depth
+    top: 0
+    left: 0
+    z-index: 10
+
+    text-align: right
+
+    button
+        transition: 0.2s
+        background-color: #00000000
+        position: relative
+        right: 10px
+        top: 5px
+        border: none 
+        background: none
+        color: white
+        filter: invert(100%)
+
+        z-index: 999
+        border-radius: 7px
+
+    button:hover
+        background-color: #00000022
+        cursor: pointer
+
+    img
+        position: relative
+        top: 2px
+        padding: 0
+        margin: 0
+        height: calc($frame_depth * 0.6)
+
+    #drag-region
+        margin: 0
+        position: absolute
+        top: 0
+        left: 0
+
+        width: calc(100% - 80px)
+
+        z-index: 9999
+        height: 100%
+        -webkit-app-region: drag
+
+        
+
+
 #home-page
+    position: absolute
+    top: $frame_depth
+    left: 50%
+    transform: translate(-50%, 0)
+
+    width: 95%
+
+    border-radius: 20px
+
+
+    height: 600px
+
+    background-color: white
     text-align: center
 
     button
@@ -22,7 +103,7 @@
         margin: 0px 10% 0px 10%
 
     .divider
-        border-bottom: 1px solid black
+        border-bottom: 1px solid #202020
 
     
     #start-parse
@@ -33,11 +114,11 @@
         position: relative
         top: 20px
 
-        border: 1px solid black
+        border: 1px solid #202020
         background: linear-gradient(-45deg, #c77055, #c74e7c, #4ca6c6, #4cc9ae)
         animation: gradient 15s ease infinite
         background-size: 400% 400%
-        color: black
+        color: #202020
         font-weight: 300
 
 
@@ -49,15 +130,15 @@
         font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif
         font-weight: 200
         
-        box-shadow: 0px 3px 5px mix(black, white, 60%)
+        box-shadow: 0px 3px 5px mix(#202020, white, 60%)
 
     #start-parse:hover
-        box-shadow: 0px 5px 5px mix(black, white, 60%)
+        box-shadow: 0px 5px 5px mix(#202020, white, 60%)
         transform: translateY(-2px)
 
     #start-parse:disabled
         transform: translateY(1px)
-        box-shadow: 0px 2px 5px mix(black, white, 60%)
+        box-shadow: 0px 2px 5px mix(#202020, white, 60%)
         opacity: 80%
 
     #controls-container
@@ -90,7 +171,7 @@
             font-weight: 400
             margin-left: 10px
             background-color: white
-            border: 1px solid black
+            border: 1px solid #202020
             border-radius: 4px
             padding: 8px
 
@@ -99,10 +180,10 @@
             background-color: #887ec9
             color: white
 
-        color: black
+        color: #202020
 
         #customBlock
-            border: 1px solid black
+            border: 1px solid #202020
             border-radius: 4px
             padding: 8px
             font-size: 15px
@@ -129,9 +210,9 @@
         top: 25px
         background-color: #d2d2d2
         height: 200px
-        margin: 10px
+        margin: 10px 20px 0px 0px
         border-radius: 10px
-        border: 1px solid black
+        border: 1px solid #202020
 
         overflow: scroll
 
@@ -147,21 +228,21 @@
 
 
     .right
-        width: 50%
+        width: 60%
         float: right
 
     .left
-        width: 50%
+        width: 40%
         float: left
 
 
 
-    @keyframes gradient 
-        0% 
-            background-position: 0% 50%
-        
-        50% 
-            background-position: 100% 50%
-        
-        100% 
-            background-position: 0% 50%
+@keyframes gradient 
+    0% 
+        background-position: 0% 50%
+    
+    50% 
+        background-position: 100% 50%
+    
+    100% 
+        background-position: 0% 50%

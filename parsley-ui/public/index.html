@@ -11,10 +11,16 @@
       http-equiv="X-Content-Security-Policy"
       content="default-src 'self'; script-src 'self'"
     />
+
     <link rel="stylesheet" type="text/css" href="home.css" />
     <title>Hello from Electron renderer!</title>
   </head>
   <body>
+    <div id="frame">
+      <button id="minimize"><img src="./assets/dash.svg" /></button>
+      <button id="exit"><img src="./assets/x-square.svg" /></button>
+      <div id="drag-region"></div>
+    </div>
     <script src="../src/home.js"></script>
     <div id="home-page">
       <h1>Parsley</h1>
