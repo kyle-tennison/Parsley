@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require("electron");
 const fs = require("fs");
 const path = require("node:path");
-const { exec } = require("child_process");
+const { exec, spawn } = require("child_process");
 
 const CONFIG_FILE = path.resolve("../storage/config.json");
 
@@ -21,15 +21,53 @@ function writeConfig(event, object) {
     if (error) throw error;
   });
   console.log("writing:", object);
+
+  // When we write to the config we need to clear the cache
+  let cache = path.join(path.dirname(CONFIG_FILE), "parsed_list.txt");
+  fs.unlink(cache, (err) => {
+    if (err) {
+      console.error(`Error deleting cache: ${err}`);
+    } else {
+      console.log("Cache deleted successfully.");
+    }
+  });
+
+  fs.writeFile(cache, "\n", (err) => {
+    if (err) {
+      console.error(`Error recreating cache: ${err}`);
+    } else {
+      console.log("Cache recreated successfully");
+    }
+  });
 }
 
 async function runParse() {
   console.log("running parse");
 
-  let command = `../parsley-inner/target/release/parsley-inner ${await getRoot()} ${path.dirname(
-    CONFIG_FILE,
-  )}`;
-  console.log("Running command: ", command);
+  let command = `../parsley-inner/target/release/parsley-inner`;
+
+  let args = [await getRoot(), path.dirname(CONFIG_FILE)];
+
+  console.log("Running command: ", command, args);
+  const window = BrowserWindow.getAllWindows()[0];
+
+  const childProcess = spawn(command, args, { shell: true });
+
+  childProcess.stdout.on("data", (data) => {
+    let stdout = data.toString();
+    console.log("Sending stdout:", stdout);
+    window.webContents.send("parse:stdout", stdout);
+  });
+
+  childProcess.stderr.on("data", (data) => {
+    window.webContents.send("parse:stderr", data.toString());
+  });
+
+  childProcess.on("close", (code) => {
+    window.webContents.send("parse:exit", code);
+  });
+
+  return;
 
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
@@ -44,7 +82,8 @@ async function runParse() {
   });
 }
 
-async function setRoot(win) {
+async function setRoot() {
+  let win = BrowserWindow.getAllWindows()[0];
   const { canceled, filePaths } = await dialog.showOpenDialog(win, {
     properties: ["openDirectory"],
   });
@@ -88,6 +127,37 @@ function openConfig(event) {
   }
 }
 
+function exit() {
+  console.log("exit app");
+  closeDuplicateWindows();
+  const win = BrowserWindow.getAllWindows()[0];
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+  win.close();
+}
+
+function minimize() {
+  console.log("minimize window");
+  closeDuplicateWindows();
+  const win = BrowserWindow.getAllWindows()[0];
+  win.minimize();
+}
+
+function closeDuplicateWindows() {
+  console.log("closing duplicates");
+  if (BrowserWindow.getAllWindows().length > 1) {
+    let preserved_win = false;
+    for (let i in BrowserWindow.getAllWindows()) {
+      if (!preserved_win) {
+        continue; // We save one window
+      } else {
+        i.close();
+      }
+    }
+  }
+}
+
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
@@ -113,11 +183,11 @@ app.whenReady().then(() => {
   ipcMain.handle("openConfig", openConfig);
   ipcMain.handle("runParse", runParse);
   ipcMain.handle("getRoot", getRoot);
+  ipcMain.handle("setRoot", setRoot);
+  ipcMain.handle("exit", exit);
+  ipcMain.handle("minimize", minimize);
 
-  const win = createWindow();
-  ipcMain.handle("setRoot", () => {
-    setRoot(win);
-  });
+  createWindow();
 
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {

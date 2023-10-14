@@ -1,3 +1,45 @@
+window.electron.on("parse:stdout", (event, data) => {
+  let consoleText = document.getElementById("consoleText");
+  let newContent = "";
+  data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  for (i in data.split("\n")) {
+    let line = data.split("\n")[i];
+    if (line.startsWith("info:")) {
+      line = `<strong>${line}<strong/>`;
+    } else if (line.startsWith("error:")) {
+      line = `<em>${line}<em/>`;
+    }
+    newContent += `${line}<br>`;
+    console.log(line);
+  }
+
+  consoleText.innerHTML += newContent;
+  scrollConsole();
+});
+
+window.electron.on("parse:stderr", (event, data) => {
+  console.error(data);
+  let consoleText = document.getElementById("consoleText");
+  let newContent = "";
+  data = data.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  for (i in data.split("\n")) {
+    let line = data.split("\n")[i];
+    newContent += `${line}<br>`;
+  }
+
+  newContent = `<em>${newContent}<em>`;
+  consoleText.innerHTML += newContent;
+  scrollConsole();
+});
+
+window.electron.on("parse:exit", (event, code) => {
+  let button = document.getElementById("start-parse");
+  button.disabled = false;
+  console.log(`Command exited with code ${code}`);
+});
+
 const BLACKLIST_MAP = {
   coolant: "m5",
   restart: "replace",
@@ -46,6 +88,13 @@ async function updateConfig() {
   await window.electron.writeConfig(current_config);
 }
 
+async function scrollConsole() {
+  let console = document.getElementById("consoleText");
+
+  // console.scrollTop = console.scrollHeight
+  console.scrollIntoView({ behavior: "smooth", block: "end" });
+}
+
 async function appendLine(line) {
   if (line === "") {
     console.log("line is empty, skipping");
@@ -81,21 +130,10 @@ async function customLineSubmit() {
   await appendLine(line);
 }
 
-async function runParse() {
-  let consoleText = document.getElementById("consoleText");
-  let result = await window.electron.runParse();
-
-  if (result.stderr !== "") {
-    consoleText.style.color = "red";
-    consoleText.textContent = result.stdout + "\n---\n" + result.stderr;
-  } else {
-    consoleText.style.color = "black";
-    consoleText.textContent = result.stdout;
-  }
-
-  consoleText.innerHTML = consoleText.textContent.replace(/\n/g, "<br>");
-
-  console.log(result);
+async function updateRoot() {
+  // Set root text
+  document.getElementById("root-text").textContent =
+    "Root: " + (await window.electron.getRoot());
 }
 
 // Setup event listeners
@@ -143,6 +181,7 @@ window.addEventListener("load", async () => {
   // Listen for set root
   document.getElementById("modifyRoot").addEventListener("click", async () => {
     await window.electron.setRoot();
+    await updateRoot();
   });
 
   // Listen for parse start
@@ -150,13 +189,18 @@ window.addEventListener("load", async () => {
     let button = document.getElementById("start-parse");
     button.disabled = true;
     document.getElementById("consoleText").textContent = "";
-    await runParse();
-    button.disabled = false;
+    await window.electron.runParse();
   });
 
-  // Set root text
-  document.getElementById("root-text").textContent =
-    "Root: " + (await window.electron.getRoot());
+  // Listen for header controls
+  document.getElementById("exit").addEventListener("click", () => {
+    window.electron.exit();
+  });
+  document.getElementById("minimize").addEventListener("click", () => {
+    window.electron.minimize();
+  });
+
+  updateRoot();
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();

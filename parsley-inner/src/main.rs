@@ -21,7 +21,7 @@ fn main() -> Result<(), std::io::Error> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 3 {
-        eprintln!("error: missing arguments.\nUsage: parsley-inner <root-dir> <storage-dir>");
+        eprintln!("error: missing arguments\n\tusage: parsley-inner <root-dir> <storage-dir>");
         std::process::exit(1);
     }
 
@@ -114,6 +114,8 @@ fn main() -> Result<(), std::io::Error> {
         filter_queue.push(file);
     }
 
+    let mut searched_files: i32 = 0;
+
     while filter_queue.len() > 0 {
         let file = filter_queue.pop().unwrap();
 
@@ -122,6 +124,7 @@ fn main() -> Result<(), std::io::Error> {
             for child in util::list_dir(file.as_path())? {
                 filter_queue.push(child);
             }
+            continue
         }
 
         // If the contents aren't from a directory, validate they are gcode
@@ -133,7 +136,10 @@ fn main() -> Result<(), std::io::Error> {
             filename_hashes.push(util::hash_filename(filename));
             file_hashes.push(util::md5_hash_file(filename)?);
         }
+        searched_files += 1;
     }
+
+    println!("info: searched {} files, found {} gcode files.", searched_files, filenames.len());
 
     // Make sure there are the same number of filenames as hashes
     assert!(
@@ -144,7 +150,7 @@ fn main() -> Result<(), std::io::Error> {
     // Load Previously Parsed Files
     let mut previously_parsed: HashMap<String, String> = HashMap::new();
     let hashes_file = File::open(&parsed_list_file)?;
-    let reader = BufReader::new(hashes_file);
+    let reader = BufReader::new(&hashes_file);
 
     for line in reader.lines() {
         let line = line?;
@@ -167,10 +173,13 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     // Search for modified/new files
+    let tmp_copy_filename = format!("{}{}", parsed_list_file.to_str().unwrap(), ".tmp");
+    fs::copy(&parsed_list_file, &tmp_copy_filename)?;
+
     let tmp_copy = OpenOptions::new() // This will replace the existing parse list
         .write(true)
-        .create(true)
-        .open(format!("{}{}", parsed_list_file.to_str().unwrap(), ".tmp"))
+        .append(true)
+        .open(tmp_copy_filename)
         .unwrap();
     let mut writer = BufWriter::new(&tmp_copy);
 

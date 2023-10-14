@@ -7,4 +7,7 @@ contextBridge.exposeInMainWorld("electron", {
   runParse: () => ipcRenderer.invoke("runParse"),
   setRoot: () => ipcRenderer.invoke("setRoot"),
   getRoot: () => ipcRenderer.invoke("getRoot"),
+  exit: () => ipcRenderer.invoke("exit"),
+  minimize: () => ipcRenderer.invoke("minimize"),
+  on: (signal, data) => ipcRenderer.on(signal, data),
 });
