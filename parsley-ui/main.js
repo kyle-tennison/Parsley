@@ -1,7 +1,13 @@
 // Parsley 2023
 // Kyle Tennison
 
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  nativeImage,
+} = require("electron");
 const fs = require("fs");
 const path = require("node:path");
 const { exec, spawn } = require("child_process");
@@ -13,9 +19,10 @@ function readConfig() {
   try {
     const fileData = fs.readFileSync(CONFIG_FILE, "utf8");
     const jsonData = JSON.parse(fileData);
-    return jsonData;
+    return { contents: jsonData };
   } catch (error) {
     console.error(`Error reading Config Json: ${error.message}`);
+    return { err: error.message };
   }
 }
 
@@ -96,7 +103,7 @@ async function setRoot() {
 
     console.log("setting root to", root);
 
-    let config = readConfig();
+    let config = readConfig().contents;
     config.root = root;
     writeConfig(null, config);
   }
@@ -104,10 +111,10 @@ async function setRoot() {
 
 // Gets root from json
 async function getRoot() {
-  const root = readConfig().root 
-  if (root === undefined){
-    return "~"
-  };
+  const root = readConfig().contents.root;
+  if (root === undefined) {
+    return "~";
+  }
   return root;
 }
 
@@ -127,7 +134,7 @@ function openConfig(event) {
       if (error) {
         console.error(`Error opening file: ${error.message}`);
       } else {
-        console.log('Opened config file');
+        console.log("Opened config file");
       }
     });
   } else {
@@ -178,6 +185,9 @@ const createWindow = () => {
     minHeight: 350,
     maxHeight: 750,
     frame: false,
+    closable: true,
+    minimizable: true,
+    icon: path.join(__dirname, "public/assets/icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
@@ -185,10 +195,17 @@ const createWindow = () => {
 
   win.loadFile(path.join(__dirname, "public/index.html"));
 
+  if (process.platform === "darwin") {
+    const image = nativeImage.createFromPath("build-resources/icon.png");
+    app.dock.setIcon(image);
+  }
+
   return win;
 };
 
 app.whenReady().then(() => {
+  // For build
+  if (require("electron-squirrel-startup")) app.quit();
 
   // Setup ipc handlers
   ipcMain.handle("readConfig", readConfig);

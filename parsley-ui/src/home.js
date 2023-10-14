@@ -8,15 +8,38 @@ const BLACKLIST_MAP = {
   homing: "Z0",
 };
 
+// Update checkboxes to match json
+async function preloadConfig() {
+  let current_config = await readConfig();
+
+  console.log(current_config);
+
+  const coolant = document.getElementById("coolantCheckbox");
+  const homing = document.getElementById("homingCheckbox");
+  const restart = document.getElementById("restartCheckbox");
+
+  if (
+    current_config.blacklist.includes(BLACKLIST_MAP.coolant) !== coolant.checked
+  ) {
+    coolant.checked = !coolant.checked;
+  }
+  if (
+    current_config.blacklist.includes(BLACKLIST_MAP.restart) !== restart.checked
+  ) {
+    restart.checked = !restart.checked;
+  }
+  if (
+    current_config.blacklist.includes(BLACKLIST_MAP.homing) !== homing.checked
+  ) {
+    homing.checked = !homing.checked;
+  }
+}
+
 // Updates blacklist configuration
 async function updateConfig() {
   console.log("updating config");
 
-  let current_config = await window.electron.readConfig();
-  if (current_config === undefined) {
-    await window.electron.openConfig();
-    alert("Error in config json");
-  }
+  let current_config = await readConfig();
 
   const coolant = document.getElementById("coolantCheckbox");
   const homing = document.getElementById("homingCheckbox");
@@ -51,6 +74,18 @@ async function updateConfig() {
   await window.electron.writeConfig(current_config);
 }
 
+// Wrapper to read config with error handling
+async function readConfig() {
+  let config_response = await window.electron.readConfig();
+  console.log(config_response);
+  if (config_response.err !== undefined) {
+    alert(`Error in Config Json: \n${config_response.err}`);
+    await window.electron.openConfig();
+  } else {
+    return config_response.contents;
+  }
+}
+
 // Scrolls console to bottom
 async function scrollConsole() {
   let console = document.getElementById("consoleText");
@@ -65,7 +100,7 @@ async function appendLine(line) {
     console.log("line is empty, skipping");
     return;
   }
-  let current_config = await window.electron.readConfig();
+  let current_config = await readConfig();
   let blacklist = current_config.blacklist;
 
   if (blacklist.includes(line)) {
@@ -97,7 +132,11 @@ async function customLineSubmit() {
 
 // Updates parse root
 async function updateRoot() {
-  // Set root text
+  // Verify that config is good
+  if ((await readConfig()) === undefined) {
+    return;
+  }
+
   document.getElementById("root-text").textContent =
     "Root: " + (await window.electron.getRoot());
 }
@@ -105,32 +144,6 @@ async function updateRoot() {
 // Setup event listeners
 window.addEventListener("load", async () => {
   const form = document.getElementById("config-form");
-
-  // Read config from json and update buttons to match status
-  let config = await window.electron.readConfig();
-
-  if (config === undefined) {
-    await window.electron.openConfig();
-    alert("Error in config json");
-  }
-
-  const ID_MAP = {
-    coolantCheckbox: "m5",
-    restartCheckbox: "replace",
-    homingCheckbox: "Z0",
-  };
-
-  for (const id in ID_MAP) {
-    let contents = ID_MAP[id];
-    let element = document.getElementById(id);
-
-    if (config.blacklist.includes(contents)) {
-      element.checked = true;
-    }
-
-    // Assign listeners for all checkboxes
-    element.addEventListener("change", updateConfig);
-  }
 
   // Listener for custom line
   document
@@ -152,6 +165,7 @@ window.addEventListener("load", async () => {
 
   // Listen for parse start
   document.getElementById("start-parse").addEventListener("click", async () => {
+    await readConfig(); // validate config
     let button = document.getElementById("start-parse");
     button.disabled = true;
     document.getElementById("consoleText").textContent = "";
@@ -167,12 +181,12 @@ window.addEventListener("load", async () => {
   });
 
   updateRoot();
+  preloadConfig();
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
   });
 });
-
 
 // ------------------------------
 //     Console Listeners

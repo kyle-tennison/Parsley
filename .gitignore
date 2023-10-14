@@ -4,3 +4,5 @@ node_modules/
 *.map
 yarn.lock
 .eslintcache
+out/
+.DS_Store
