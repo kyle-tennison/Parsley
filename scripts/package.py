@@ -80,7 +80,20 @@ def main():
             os.path.join(build_dir)
             )
         
-        resources_dir = build_dir
+        resources_dir = os.path.join(build_dir, "resources")
+
+        print("Built Parsley.exe")
+        print("Building rust")
+
+
+        os.chdir(os.path.join(os.getcwd(), "../parsley-inner"))
+        os.system("cargo build --release --target x86_64-pc-windows-gnu")
+
+        shutil.copy(
+            os.path.join(os.getcwd(), "target/x86_64-pc-windows-gnu/release/parsley-inner.exe"),
+            os.path.join(resources_dir)
+        )
+        
 
     else:
         print("Invalid platform", platform)

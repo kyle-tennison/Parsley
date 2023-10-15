@@ -11,10 +11,11 @@ const {
 const fs = require("fs");
 const path = require("node:path");
 const { exec, spawn } = require("child_process");
-const isDev = require("electron-is-dev");
 
 let RESOURCE_DIR;
 let INNER_PATH;
+
+var isDev = process.env.APP_DEV ? (process.env.APP_DEV.trim() == "true") : false;
 
 if (isDev) {
   console.log("Running in development mode");
@@ -74,7 +75,13 @@ function writeConfig(event, object) {
 
 // Run parse in rust
 async function runParse() {
-  let command = `../parsley-inner/target/release/parsley-inner`;
+
+  let command = `${INNER_PATH}`
+
+  if (process.platform === "win32"){
+    command += '.exe'
+  }
+
   let args = [await getRoot(), RESOURCE_DIR];
 
   console.log("Running command: ", command, args);
@@ -85,14 +92,17 @@ async function runParse() {
   childProcess.stdout.on("data", (data) => {
     let stdout = data.toString();
     console.log("Sending stdout:", stdout);
+    if (window.isDestroyed()) return
     window.webContents.send("parse:stdout", stdout);
   });
 
   childProcess.stderr.on("data", (data) => {
+    if (window.isDestroyed()) return
     window.webContents.send("parse:stderr", data.toString());
   });
 
   childProcess.on("close", (code) => {
+    if (window.isDestroyed()) return
     window.webContents.send("parse:exit", code);
   });
 

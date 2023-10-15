@@ -38,7 +38,7 @@ impl Parser {
     pub fn parse_file(&self, filename: &String) -> Result<bool, std::io::Error> {
         let file = File::open(filename)?;
         let reader = BufReader::new(&file);
-        let signature = format!("(Parsed by Parsley on {})", format_current_date());
+        let signature = format!("(Parsed by Parsley on {})\n\n", format_current_date());
 
         let file_copy = OpenOptions::new()
             .write(true)
