@@ -9,7 +9,7 @@ use std::{
     collections::HashMap,
     env,
     fs::{self, File, OpenOptions},
-    io::{BufRead, BufReader, BufWriter, Write},
+    io::{BufRead, BufReader, Write},
     path::{Path, PathBuf},
 };
 
@@ -195,13 +195,7 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     // Search for modified/new files
-    let cache_file_w_options = OpenOptions::new() // This will replace the existing parse list
-        .write(true)
-        .append(true)
-        .open(&cache_file_path)
-        .unwrap();
-    let mut writer = BufWriter::new(&cache_file_w_options);
-
+    let mut cache_buffer: HashMap<String, String> = HashMap::new();
     let mut parse_queue: Vec<String> = Vec::new();
     while file_hashes.len() > 0 {
         let filename_hash = filename_hashes.pop().unwrap();
@@ -213,7 +207,7 @@ fn main() -> Result<(), std::io::Error> {
                 // Check if both hashes match
                 if *existing_hash == file_hash {
                     println!("debug: {} is unchanged", file_hash);
-                    writer.write_all(format!("\n{} {}", filename_hash, file_hash).as_bytes())?;
+                    cache_buffer.insert(filename_hash, file_hash);
                 } else {
                     println!("info: found modified file {}", filename);
                     parse_queue.push(filename);
@@ -229,6 +223,7 @@ fn main() -> Result<(), std::io::Error> {
 
     // Parse files
     println!("info: found {} files to parse", parse_queue.len());
+    let mut cache_buffer: HashMap<String, String> = HashMap::new();
     let parser = Parser::new(&config_json_path.to_str().unwrap().to_string())?;
     for file in &parse_queue {
         println!("debug: parsing {}", file);
@@ -236,19 +231,22 @@ fn main() -> Result<(), std::io::Error> {
         // parse the file
         parser.parse_file(file)?;
 
-        // Add new hash into file
-        let newline = format!(
-            "\n{} {}",
-            util::hash_filename(file),
-            util::md5_hash_file(file)?
-        )
-        .to_string();
-
-        writer.write_all(newline.as_bytes())?;
-        writer.flush()?;
+        // Add new hash into map
+        cache_buffer.insert(util::hash_filename(file), util::md5_hash_file(file)?);
     }
 
-    println!("info: successfully parsed {} files", parse_queue.len());
+    // Write cache_buffer back into file
+    let mut cache_file_w_options = OpenOptions::new() // This will replace the existing parse list
+        .write(true)
+        .open(&cache_file_path)
+        .unwrap();
+
+
+    for (filename_hash, file_md5) in &cache_buffer{
+        cache_file_w_options.write_all(format!("\n{} {}", filename_hash, file_md5).as_bytes())?;
+    }
+
 
     Ok(())
+
 }
