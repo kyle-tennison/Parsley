@@ -3,9 +3,9 @@
 
 // Map checkbox blacklist map
 const BLACKLIST_MAP = {
-  coolant: "m5",
-  restart: "replace",
-  homing: "Z0",
+  coolant: "M7",
+  restart: "M3",
+  homing: "G28 G91 Z0.",
 };
 
 // Update checkboxes to match json
@@ -32,6 +32,14 @@ async function preloadConfig() {
     current_config.blacklist.includes(BLACKLIST_MAP.homing) !== homing.checked
   ) {
     homing.checked = !homing.checked;
+  }
+
+  let elements =[coolant, homing, restart]
+  for (i in elements){
+    let element = elements[i]
+    element.addEventListener("click", () => {
+      updateConfig()
+    })
   }
 }
 
@@ -75,12 +83,21 @@ async function updateConfig() {
 }
 
 // Wrapper to read config with error handling
-async function readConfig() {
+async function readConfig(tries=0) {
   let config_response = await window.electron.readConfig();
   console.log(config_response);
   if (config_response.err !== undefined) {
-    alert(`Error in Config Json: \n${config_response.err}`);
-    await window.electron.openConfig();
+
+    if (tries < 5){
+      console.error("config read error, trying again 0.1s")
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      readConfig(tries + 1)
+    }
+    else{
+      alert(`Error in Config Json: \n${config_response.err}`);
+      await window.electron.openConfig();
+    }
+
   } else {
     return config_response.contents;
   }
@@ -133,7 +150,7 @@ async function customLineSubmit() {
 // Updates parse root
 async function updateRoot() {
   // Wait a moment to let everything do its work (for windows)
-  await new Promise((resolve) => setTimeout(resolve, 1000));
+  await new Promise((resolve) => setTimeout(resolve, 250));
   document.getElementById("root-text").textContent =
     "Root: " + (await window.electron.getRoot());
 }

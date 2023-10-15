@@ -55,5 +55,8 @@ module.exports = {
         "build-resources/icon.icns",
       ),
     ],
+    win32metadata: {
+      "requested-execution-level": "requireAdministrator"
+    },
   },
 };

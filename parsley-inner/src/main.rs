@@ -79,17 +79,14 @@ fn main() -> Result<(), std::io::Error> {
     println!("debug: using root {:?}", root_dir);
     println!("debug: storage dir is: {:?}", storage_dir);
 
-    let mut parsed_list_file = storage_dir.join("./parsed_list.txt");
+    let mut cache_file = storage_dir.join("./cache.txt");
     let mut config_json = storage_dir.join("./config.json");
 
-    if let Ok(abspath) = fs::canonicalize(&parsed_list_file) {
-        parsed_list_file = abspath;
+    if let Ok(abspath) = fs::canonicalize(&cache_file) {
+        cache_file = abspath;
     } else {
-        eprintln!(
-            "warn: could not locate cache. expected {:?}",
-            parsed_list_file
-        );
-        File::create(&parsed_list_file)?;
+        eprintln!("warn: could not locate cache. expected {:?}", cache_file);
+        File::create(&cache_file)?;
     }
     if let Ok(abspath) = fs::canonicalize(config_json) {
         config_json = abspath;
@@ -99,7 +96,7 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     println!("debug: located config json at {:?}", config_json);
-    println!("debug: located cache at {:?}", &parsed_list_file);
+    println!("debug: located cache at {:?}", &cache_file);
 
     let mut filenames: Vec<String> = Vec::new();
     let mut filename_hashes: Vec<String> = Vec::new();
@@ -114,26 +111,31 @@ fn main() -> Result<(), std::io::Error> {
     let mut searched_files: i32 = 0;
 
     while filter_queue.len() > 0 {
-        let file = filter_queue.pop().unwrap();
-
-        // Add folder contents to stack if they exist
-        if util::is_directory(file.as_path()) {
-            for child in util::list_dir(file.as_path())? {
-                filter_queue.push(child);
+        let path = filter_queue.pop().unwrap();
+        let mut add_item = || -> Result<(), std::io::Error> {
+            // Add folder contents to stack if they exist
+            if util::is_directory(path.as_path()) {
+                for child in util::list_dir(path.as_path())? {
+                    filter_queue.push(child);
+                }
             }
-            continue;
-        }
 
-        // If the contents aren't from a directory, validate they are gcode
-        if file.to_str().unwrap().ends_with(".gcode") {
-            println!("debug: queueing {}", file.display());
+            // If the contents aren't from a directory, validate they are gcode
+            if path.to_str().unwrap().ends_with(".gcode") {
+                println!("debug: queueing {}", path.display());
 
-            filenames.push(file.to_str().unwrap().to_string());
-            let filename = filenames.last().unwrap();
-            filename_hashes.push(util::hash_filename(filename));
-            file_hashes.push(util::md5_hash_file(filename)?);
+                filenames.push(path.to_str().unwrap().to_string());
+                let filename = filenames.last().unwrap();
+                filename_hashes.push(util::hash_filename(filename));
+                file_hashes.push(util::md5_hash_file(filename)?);
+            }
+            searched_files += 1;
+            Ok(())
+        };
+
+        if let Err(_err) = add_item(){
+            println!("debug: unable to explore {:?}", path)
         }
-        searched_files += 1;
     }
 
     println!(
@@ -150,7 +152,7 @@ fn main() -> Result<(), std::io::Error> {
 
     // Load Previously Parsed Files
     let mut previously_parsed: HashMap<String, String> = HashMap::new();
-    let hashes_file = File::open(&parsed_list_file)?;
+    let hashes_file = File::open(&cache_file)?;
     let reader = BufReader::new(&hashes_file);
 
     for line in reader.lines() {
@@ -174,15 +176,12 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     // Search for modified/new files
-    let tmp_copy_filename = format!("{}{}", parsed_list_file.to_str().unwrap(), ".tmp");
-    fs::copy(&parsed_list_file, &tmp_copy_filename)?;
-
-    let tmp_copy = OpenOptions::new() // This will replace the existing parse list
+    let cache_file_w_options = OpenOptions::new() // This will replace the existing parse list
         .write(true)
         .append(true)
-        .open(tmp_copy_filename)
+        .open(&cache_file)
         .unwrap();
-    let mut writer = BufWriter::new(&tmp_copy);
+    let mut writer = BufWriter::new(&cache_file_w_options);
 
     let mut parse_queue: Vec<String> = Vec::new();
     while file_hashes.len() > 0 {
@@ -229,13 +228,6 @@ fn main() -> Result<(), std::io::Error> {
         writer.write_all(newline.as_bytes())?;
         writer.flush()?;
     }
-
-    // Replace parse-list with new one
-    fs::remove_file(&parsed_list_file)?;
-    fs::rename(
-        format!("{}{}", parsed_list_file.to_str().unwrap(), ".tmp"),
-        parsed_list_file,
-    )?;
 
     Ok(())
 }

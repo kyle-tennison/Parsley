@@ -1,6 +1,10 @@
 // Parsley 2023
 // Kyle Tennison
 
+
+// For build
+if (require("electron-squirrel-startup")) app.quit();
+
 const {
   app,
   BrowserWindow,
@@ -19,7 +23,7 @@ var isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == "true" : false;
 
 if (isDev) {
   console.log("Running in development mode");
-  RESOURCE_DIR = path.resolve("../storage/");
+  RESOURCE_DIR = path.resolve("../dev-resource/");
   INNER_PATH = path.resolve(
     path.join(__dirname, "../parsley-inner/target/release/parsley-inner"),
   );
@@ -149,8 +153,8 @@ async function setRoot() {
 // Gets root from json
 async function getRoot() {
   const root = readConfig().contents.root;
-  if (root === undefined) {
-    return "~";
+  if (root === undefined) { 
+    return process.platform === "darwin"? "~" : "%UserProfile%";
   }
   return root;
 }
@@ -180,11 +184,11 @@ function openConfig(event) {
 }
 
 // Exit app
-function exit() {
+function exit(hard) {
   console.log("exit app");
   closeDuplicateWindows();
   const win = BrowserWindow.getAllWindows()[0];
-  if (process.platform !== "darwin") {
+  if ((process.platform !== "darwin") || hard) {
     app.quit();
   }
   win.close();
@@ -241,8 +245,6 @@ const createWindow = () => {
 };
 
 app.whenReady().then(() => {
-  // For build
-  if (require("electron-squirrel-startup")) app.quit();
 
   // Setup ipc handlers
   ipcMain.handle("readConfig", readConfig);
