@@ -11,6 +11,8 @@ module.exports = {
       config: {
         iconUrl: "https://url/to/icon.ico",
         setupIcon: "build-resources/icon.ico",
+        authors: "Kyle Tennison",
+        name: "Install Parsley",
       },
     },
     {

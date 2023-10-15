@@ -132,11 +132,8 @@ async function customLineSubmit() {
 
 // Updates parse root
 async function updateRoot() {
-  // Verify that config is good
-  if ((await readConfig()) === undefined) {
-    return;
-  }
-
+  // Wait a moment to let everything do its work (for windows)
+  await new Promise((resolve) => setTimeout(resolve, 1000));
   document.getElementById("root-text").textContent =
     "Root: " + (await window.electron.getRoot());
 }
@@ -180,8 +177,8 @@ window.addEventListener("load", async () => {
     window.electron.minimize();
   });
 
-  updateRoot();
-  preloadConfig();
+  await updateRoot();
+  await preloadConfig();
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();

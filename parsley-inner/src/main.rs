@@ -86,10 +86,10 @@ fn main() -> Result<(), std::io::Error> {
         parsed_list_file = abspath;
     } else {
         eprintln!(
-            "error: could not locate cache. expected {:?}",
+            "warn: could not locate cache. expected {:?}",
             parsed_list_file
         );
-        std::process::exit(1);
+        File::create(&parsed_list_file)?;
     }
     if let Ok(abspath) = fs::canonicalize(config_json) {
         config_json = abspath;

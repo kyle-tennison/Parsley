@@ -28,7 +28,9 @@ def main():
     if platform not in ["darwin", "win"]:
         print(f"Error: Unknown platform '{platform}'")
 
-    os.chdir(os.path.abspath(os.path.dirname(__file__)))
+    scripts_dir =os.path.abspath(os.path.dirname(__file__))
+
+    os.chdir(scripts_dir)
 
     if platform == 'darwin':
         print("Building for darwin")
@@ -93,6 +95,7 @@ def main():
             os.path.join(os.getcwd(), "target/x86_64-pc-windows-gnu/release/parsley-inner.exe"),
             os.path.join(resources_dir)
         )
+
         
 
     else:

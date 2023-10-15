@@ -15,7 +15,7 @@ const { exec, spawn } = require("child_process");
 let RESOURCE_DIR;
 let INNER_PATH;
 
-var isDev = process.env.APP_DEV ? (process.env.APP_DEV.trim() == "true") : false;
+var isDev = process.env.APP_DEV ? process.env.APP_DEV.trim() == "true" : false;
 
 if (isDev) {
   console.log("Running in development mode");
@@ -75,34 +75,40 @@ function writeConfig(event, object) {
 
 // Run parse in rust
 async function runParse() {
-
-  let command = `${INNER_PATH}`
-
-  if (process.platform === "win32"){
-    command += '.exe'
-  }
+  let command = `${INNER_PATH}`;
 
   let args = [await getRoot(), RESOURCE_DIR];
+
+  if (process.platform === "win32") {
+    command += ".exe";
+    command.replace("\\", "/");
+
+    for (let arg in args) {
+      arg = arg.replace("\\", "/");
+    }
+  }
 
   console.log("Running command: ", command, args);
   const window = BrowserWindow.getAllWindows()[0];
 
   const childProcess = spawn(command, args, { shell: true });
 
+  window.webContents.send("parse:stdout", `${command} ${args.join(" ")}`);
+
   childProcess.stdout.on("data", (data) => {
     let stdout = data.toString();
     console.log("Sending stdout:", stdout);
-    if (window.isDestroyed()) return
+    if (window.isDestroyed()) return;
     window.webContents.send("parse:stdout", stdout);
   });
 
   childProcess.stderr.on("data", (data) => {
-    if (window.isDestroyed()) return
+    if (window.isDestroyed()) return;
     window.webContents.send("parse:stderr", data.toString());
   });
 
   childProcess.on("close", (code) => {
-    if (window.isDestroyed()) return
+    if (window.isDestroyed()) return;
     window.webContents.send("parse:exit", code);
   });
 
