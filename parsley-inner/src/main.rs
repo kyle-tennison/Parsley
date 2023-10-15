@@ -18,7 +18,7 @@ fn main() -> Result<(), std::io::Error> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 3 {
-        eprintln!("error: missing arguments\n\tusage: parsley-inner <root-dir> <storage-dir>");
+        eprintln!("error: missing arguments\n    usage: parsley-inner <root-dir> <storage-dir>");
         std::process::exit(1);
     }
 
