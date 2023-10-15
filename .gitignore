@@ -6,5 +6,4 @@ yarn.lock
 .eslintcache
 out/
 .DS_Store
-build-darwin
-build-win
+build

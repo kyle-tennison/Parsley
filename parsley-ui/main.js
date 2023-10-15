@@ -84,12 +84,16 @@ async function runParse() {
   let args = [await getRoot(), RESOURCE_DIR];
 
   if (process.platform === "win32") {
-    command += ".exe";
+    command = `"${command}.exe"`;
     command.replace("\\", "/");
+  }
+  else{
+    command = `"${command}"`;
+  }
 
-    for (let arg in args) {
-      arg = arg.replace("\\", "/");
-    }
+  for (let arg in args) {
+    arg = `"${arg}"`
+    arg = arg.replace("\\", "/");
   }
 
   console.log("Running command: ", command, args);
@@ -97,7 +101,7 @@ async function runParse() {
 
   const childProcess = spawn(command, args, { shell: true });
 
-  window.webContents.send("parse:stdout", `${command} ${args.join(" ")}`);
+  window.webContents.send("parse:stdout", `$ ${command} ${args.join(" ")}`);
 
   childProcess.stdout.on("data", (data) => {
     let stdout = data.toString();
