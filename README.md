@@ -1,5 +1,5 @@
 # Parsley 🍃
-
+![Sample Image](misc/general-screnshot.png)
 ## What does it do?
 Gcode is the universal language for toolpaths; it's used from 3D Printers to Hass Milling Machines. Unfortunately, being such a cross-compatible language tends to bring compatibility issues.
 
