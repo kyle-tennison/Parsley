@@ -60,24 +60,24 @@ function writeConfig(event, object) {
 
   // When we write to the config we need to clear the cache
   let cache = path.join(RESOURCE_DIR, "cache.txt");
-  fs.open(cache, 'w', (err, fileDescriptor) => {
+  fs.open(cache, "w", (err, fileDescriptor) => {
     if (err) {
-      console('Error opening the file:', err);
-      throw err
+      console("Error opening the file:", err);
+      throw err;
     }
-  
+
     fs.ftruncate(fileDescriptor, 0, (truncateErr) => {
       if (truncateErr) {
-        console.error('Error truncating the file:', truncateErr);
+        console.error("Error truncating the file:", truncateErr);
       } else {
-        console.log('File contents cleared successfully.');
+        console.log("File contents cleared successfully.");
       }
-  
+
       // Close the file descriptor.
       fs.close(fileDescriptor, (closeErr) => {
         if (closeErr) {
-          console.error('Error closing the file:', closeErr);
-          throw closeErr
+          console.error("Error closing the file:", closeErr);
+          throw closeErr;
         }
       });
     });
