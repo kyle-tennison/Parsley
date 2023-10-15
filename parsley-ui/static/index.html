@@ -32,15 +32,15 @@
             <h3>Set Blacklist</h3>
             <form id="config-form">
               <div>
-                <input id="coolantCheckbox" type="checkbox" />
+                <input id="coolant-checkbox" type="checkbox" />
                 <label>Disable Coolant</label>
               </div>
               <div>
-                <input id="homingCheckbox" type="checkbox" />
+                <input id="homing-checkbox" type="checkbox" />
                 <label>Disable Homing</label>
               </div>
               <div>
-                <input id="restartCheckbox" type="checkbox" />
+                <input id="restart-checkbox" type="checkbox" />
                 <label>Disable Spindle Restart</label>
               </div>
               <div>
@@ -49,11 +49,12 @@
                   type="textentry"
                   placeholder="Block Custom Line"
                 />
-                <button id="submitCustomBlock">Block</button>
+                <button id="submit-custom-block">Block</button>
               </div>
-              <div>
-                <button id="modifyJson" class="modify-btn">Modify Json</button>
-                <button id="modifyRoot" class="modify-btn">Modify Root</button>
+              <div id="buttons-container">
+                <button id="modify-json" class="modify-btn">Modify Json</button>
+                <button id="modify-root" class="modify-btn">Modify Root</button>
+                
               </div>
             </form>
           </div>
@@ -65,6 +66,12 @@
           <p id="root-text"></p>
         </div>
       </div>
+        <button id="github-btn">
+          <div>
+            <img src="./assets/github.svg"/>
+            <p>GitHub</p>
+          </div>
+        </button>
     </div>
   </body>
 </html>

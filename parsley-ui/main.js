@@ -11,6 +11,7 @@ const {
   ipcMain,
   dialog,
   nativeImage,
+  shell,
 } = require("electron");
 const fs = require("fs");
 const path = require("node:path");
@@ -194,6 +195,12 @@ function exit(hard) {
   win.close();
 }
 
+// Open an external link
+async function openExternal(event, link){
+  console.log("Opening external link:", link)
+  shell.openExternal(link)
+}
+
 // Minimize window
 function minimize() {
   console.log("minimize window");
@@ -228,13 +235,13 @@ const createWindow = () => {
     frame: false,
     closable: true,
     minimizable: true,
-    icon: path.join(__dirname, "public/assets/icon.png"),
+    icon: path.join(__dirname, "static/assets/icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
     },
   });
 
-  win.loadFile(path.join(__dirname, "public/index.html"));
+  win.loadFile(path.join(__dirname, "static/index.html"));
 
   if (process.platform === "darwin") {
     const image = nativeImage.createFromPath("build-resources/icon.png");
@@ -255,6 +262,7 @@ app.whenReady().then(() => {
   ipcMain.handle("setRoot", setRoot);
   ipcMain.handle("exit", exit);
   ipcMain.handle("minimize", minimize);
+  ipcMain.handle("openExternal", openExternal);
 
   createWindow();
 

@@ -14,9 +14,9 @@ async function preloadConfig() {
 
   console.log(current_config);
 
-  const coolant = document.getElementById("coolantCheckbox");
-  const homing = document.getElementById("homingCheckbox");
-  const restart = document.getElementById("restartCheckbox");
+  const coolant = document.getElementById("coolant-checkbox");
+  const homing = document.getElementById("homing-checkbox");
+  const restart = document.getElementById("restart-checkbox");
 
   if (
     current_config.blacklist.includes(BLACKLIST_MAP.coolant) !== coolant.checked
@@ -49,9 +49,9 @@ async function updateConfig() {
 
   let current_config = await readConfig();
 
-  const coolant = document.getElementById("coolantCheckbox");
-  const homing = document.getElementById("homingCheckbox");
-  const restart = document.getElementById("restartCheckbox");
+  const coolant = document.getElementById("coolant-checkbox");
+  const homing = document.getElementById("homing-checkbox");
+  const restart = document.getElementById("restart-checkbox");
 
   let selections = {
     coolant: coolant.checked,
@@ -132,7 +132,7 @@ async function appendLine(line) {
 
 // Adds custom line to blacklist
 async function customLineSubmit() {
-  let button = document.getElementById("submitCustomBlock");
+  let button = document.getElementById("submit-custom-block");
   let textbox = document.getElementById("customBlock");
 
   let line = textbox.value.trim();
@@ -161,18 +161,18 @@ window.addEventListener("load", async () => {
 
   // Listener for custom line
   document
-    .getElementById("submitCustomBlock")
+    .getElementById("submit-custom-block")
     .addEventListener("click", async () => {
       await customLineSubmit();
     });
 
   // Listen for open json
-  document.getElementById("modifyJson").addEventListener("click", async () => {
+  document.getElementById("modify-json").addEventListener("click", async () => {
     await window.electron.openConfig();
   });
 
   // Listen for set root
-  document.getElementById("modifyRoot").addEventListener("click", async () => {
+  document.getElementById("modify-root").addEventListener("click", async () => {
     await window.electron.setRoot();
     await updateRoot();
   });
@@ -193,6 +193,11 @@ window.addEventListener("load", async () => {
   document.getElementById("minimize").addEventListener("click", () => {
     window.electron.minimize();
   });
+
+  // Listen for github button
+  document.getElementById("github-btn").addEventListener(("click"), () => {
+    window.electron.openExternal("https://github.com/kyle-tennison/Parsley")
+  })
 
   await updateRoot();
   await preloadConfig();

@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld("electron", {
   getRoot: () => ipcRenderer.invoke("getRoot"),
   exit: (hard=false) => ipcRenderer.invoke("exit", hard),
   minimize: () => ipcRenderer.invoke("minimize"),
+  openExternal: (link) => ipcRenderer.invoke("openExternal", link),
   
   on: (signal, data) => ipcRenderer.on(signal, data),
 });

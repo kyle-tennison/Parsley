@@ -194,7 +194,7 @@ fn main() -> Result<(), std::io::Error> {
                 // Check if both hashes match
                 if *existing_hash == file_hash {
                     println!("debug: {} is unchanged", file_hash);
-                    writer.write_all(format!("{} {}\n", filename_hash, file_hash).as_bytes())?;
+                    writer.write_all(format!("\n{} {}", filename_hash, file_hash).as_bytes())?;
                 } else {
                     println!("info: found modified file {}", filename);
                     parse_queue.push(filename);
