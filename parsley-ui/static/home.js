@@ -1,6 +1,10 @@
 // Parsley 2023
 // Kyle Tennison
 
+// For a touch of whimsy
+// const {JSConfetti} = require("./confetti.js")
+const jsConfetti = new JSConfetti();
+
 // Map checkbox blacklist map
 const BLACKLIST_MAP = {
   coolant: "M7",
@@ -233,6 +237,14 @@ window.electron.on("parse:stdout", (event, data) => {
       line = `<em>${line}<em/>`;
     }
     newContent += `${line}<br>`;
+    if (line.includes("info: success")) {
+      setTimeout(() => {
+        jsConfetti.addConfetti({
+          confettiRadius: 6,
+          confettiNumber: 20,
+        });
+      }, 500);
+    }
   }
 
   consoleText.innerHTML += newContent;

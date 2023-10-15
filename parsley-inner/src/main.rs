@@ -248,5 +248,7 @@ fn main() -> Result<(), std::io::Error> {
         writer.flush()?;
     }
 
+    println!("info: successfully parsed {} files", parse_queue.len());
+
     Ok(())
 }
