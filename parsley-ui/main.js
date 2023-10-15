@@ -11,13 +11,30 @@ const {
 const fs = require("fs");
 const path = require("node:path");
 const { exec, spawn } = require("child_process");
+const isDev = require("electron-is-dev");
 
-const CONFIG_FILE = path.resolve("../storage/config.json");
+let RESOURCE_DIR;
+let INNER_PATH;
+
+if (isDev) {
+  console.log("Running in development mode");
+  RESOURCE_DIR = path.resolve("../storage/");
+  INNER_PATH = path.resolve(
+    path.join(__dirname, "../parsley-inner/target/release/parsley-inner"),
+  );
+} else {
+  RESOURCE_DIR = path.resolve(path.join(__dirname, ".."));
+  INNER_PATH = path.join(RESOURCE_DIR, "parsley-inner");
+  console.log("Running in production mode");
+}
 
 // Load config json as object
 function readConfig() {
   try {
-    const fileData = fs.readFileSync(CONFIG_FILE, "utf8");
+    const fileData = fs.readFileSync(
+      path.resolve(path.join(RESOURCE_DIR, "config.json")),
+      "utf8",
+    );
     const jsonData = JSON.parse(fileData);
     return { contents: jsonData };
   } catch (error) {
@@ -28,12 +45,16 @@ function readConfig() {
 
 // Write to config json
 function writeConfig(event, object) {
-  fs.writeFile(CONFIG_FILE, JSON.stringify(object, null, 2), (error) => {
-    if (error) throw error;
-  });
+  fs.writeFile(
+    path.join(RESOURCE_DIR, "config.json"),
+    JSON.stringify(object, null, 2),
+    (error) => {
+      if (error) throw error;
+    },
+  );
 
   // When we write to the config we need to clear the cache
-  let cache = path.join(path.dirname(CONFIG_FILE), "parsed_list.txt");
+  let cache = path.join(RESOURCE_DIR, "parsed_list.txt");
   fs.unlink(cache, (err) => {
     if (err) {
       console.error(`Error deleting cache: ${err}`);
@@ -54,7 +75,7 @@ function writeConfig(event, object) {
 // Run parse in rust
 async function runParse() {
   let command = `../parsley-inner/target/release/parsley-inner`;
-  let args = [await getRoot(), path.dirname(CONFIG_FILE)];
+  let args = [await getRoot(), RESOURCE_DIR];
 
   console.log("Running command: ", command, args);
   const window = BrowserWindow.getAllWindows()[0];
@@ -122,11 +143,11 @@ async function getRoot() {
 function openConfig(event) {
   const command =
     process.platform === "darwin" // macOS
-      ? `open -a TextEdit "${CONFIG_FILE}"`
+      ? `open -a TextEdit "${path.join(RESOURCE_DIR, "config.json")}"`
       : process.platform === "win32" // Windows
-      ? `start notepad "${CONFIG_FILE}"`
+      ? `start notepad "${path.join(RESOURCE_DIR, "config.json")}"`
       : process.platform === "linux" // Linux (GNOME)
-      ? `gnome-open "${CONFIG_FILE}"`
+      ? `gnome-open "${path.join(RESOURCE_DIR, "config.json")}"`
       : null; // Unknown platform
 
   if (command) {
