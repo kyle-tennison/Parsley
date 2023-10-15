@@ -32,13 +32,15 @@ def main():
 
     os.chdir(scripts_dir)
 
+    os.makedirs(os.path.join(scripts_dir, "../build"), exist_ok=True)
+
     if platform == 'darwin':
         print("Building for darwin")
         os.chdir("../parsley-ui")
         os.system("npm run package:darwin")
 
         print("Copying to build")
-        build_dir = os.path.join(os.getcwd(), "../build-darwin")
+        build_dir = os.path.join(os.getcwd(), "../build/build-darwin")
 
         # Remove existing build dir
         if os.path.exists(build_dir):
@@ -71,7 +73,7 @@ def main():
         os.system("npm run package:win")
 
         print("Copying to build")
-        build_dir = os.path.join(os.getcwd(), "../build-win")
+        build_dir = os.path.join(os.getcwd(), "../build/build-win")
 
         # Remove existing build dir
         if os.path.exists(build_dir):

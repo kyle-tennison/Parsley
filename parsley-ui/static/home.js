@@ -34,13 +34,25 @@ async function preloadConfig() {
     homing.checked = !homing.checked;
   }
 
-  let elements =[coolant, homing, restart]
-  for (i in elements){
-    let element = elements[i]
+  let elements = [coolant, homing, restart];
+  for (i in elements) {
+    let element = elements[i];
     element.addEventListener("click", () => {
-      updateConfig()
-    })
+      updateConfig();
+    });
   }
+}
+
+// Pause Loading Animation
+function pauseLoading() {
+  let loading = document.getElementById("loading-animation");
+  loading.src = "./assets/gear-static.svg";
+}
+
+// Play Loading Animation
+function playLoading() {
+  let loading = document.getElementById("loading-animation");
+  loading.src = "./assets/gear-anim.svg";
 }
 
 // Updates blacklist configuration
@@ -83,21 +95,18 @@ async function updateConfig() {
 }
 
 // Wrapper to read config with error handling
-async function readConfig(tries=0) {
+async function readConfig(tries = 0) {
   let config_response = await window.electron.readConfig();
   console.log(config_response);
   if (config_response.err !== undefined) {
-
-    if (tries < 5){
-      console.error("config read error, trying again 0.1s")
-      await new Promise((resolve) => setTimeout(resolve, 100))
-      readConfig(tries + 1)
-    }
-    else{
+    if (tries < 5) {
+      console.error("config read error, trying again 0.1s");
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      readConfig(tries + 1);
+    } else {
       alert(`Error in Config Json: \n${config_response.err}`);
       await window.electron.openConfig();
     }
-
   } else {
     return config_response.contents;
   }
@@ -182,6 +191,7 @@ window.addEventListener("load", async () => {
     await readConfig(); // validate config
     let button = document.getElementById("start-parse");
     button.disabled = true;
+    playLoading();
     document.getElementById("consoleText").textContent = "";
     await window.electron.runParse();
   });
@@ -195,9 +205,9 @@ window.addEventListener("load", async () => {
   });
 
   // Listen for github button
-  document.getElementById("github-btn").addEventListener(("click"), () => {
-    window.electron.openExternal("https://github.com/kyle-tennison/Parsley")
-  })
+  document.getElementById("github-btn").addEventListener("click", () => {
+    window.electron.openExternal("https://github.com/kyle-tennison/Parsley");
+  });
 
   await updateRoot();
   await preloadConfig();
@@ -248,5 +258,6 @@ window.electron.on("parse:stderr", (event, data) => {
 window.electron.on("parse:exit", (event, code) => {
   let button = document.getElementById("start-parse");
   button.disabled = false;
+  pauseLoading();
   console.log(`Command exited with code ${code}`);
 });

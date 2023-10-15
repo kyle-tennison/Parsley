@@ -1,7 +1,6 @@
 // Parsley 2023
 // Kyle Tennison
 
-
 // For build
 if (require("electron-squirrel-startup")) app.quit();
 
@@ -154,8 +153,8 @@ async function setRoot() {
 // Gets root from json
 async function getRoot() {
   const root = readConfig().contents.root;
-  if (root === undefined) { 
-    return process.platform === "darwin"? "~" : "%UserProfile%";
+  if (root === undefined) {
+    return process.platform === "darwin" ? "~" : "%UserProfile%";
   }
   return root;
 }
@@ -189,16 +188,16 @@ function exit(hard) {
   console.log("exit app");
   closeDuplicateWindows();
   const win = BrowserWindow.getAllWindows()[0];
-  if ((process.platform !== "darwin") || hard) {
+  if (process.platform !== "darwin" || hard) {
     app.quit();
   }
   win.close();
 }
 
 // Open an external link
-async function openExternal(event, link){
-  console.log("Opening external link:", link)
-  shell.openExternal(link)
+async function openExternal(event, link) {
+  console.log("Opening external link:", link);
+  shell.openExternal(link);
 }
 
 // Minimize window
@@ -252,7 +251,6 @@ const createWindow = () => {
 };
 
 app.whenReady().then(() => {
-
   // Setup ipc handlers
   ipcMain.handle("readConfig", readConfig);
   ipcMain.handle("writeConfig", writeConfig);

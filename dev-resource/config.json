@@ -1,11 +1,4 @@
 {
-  "blacklist": [
-    "m5",
-    "replace",
-    "Z0",
-    "test",
-    "123",
-    "custom line"
-  ],
-  "root": "/Users/kyletennison/Desktop"
+  "blacklist": ["m5", "replace", "Z0", "test", "123", "custom line"],
+  "root": "/Users/kyletennison"
 }

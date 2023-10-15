@@ -21,7 +21,7 @@
       <button id="exit"><img src="./assets/x-square.svg" /></button>
       <div id="drag-region"></div>
     </div>
-    <script src="../src/home.js"></script>
+    <script src="./home.js"></script>
     <div id="home-page">
       <h1>Parsley</h1>
       <div class="subtitle divider">A minimal gcode parser</div>
@@ -54,24 +54,26 @@
               <div id="buttons-container">
                 <button id="modify-json" class="modify-btn">Modify Json</button>
                 <button id="modify-root" class="modify-btn">Modify Root</button>
-                
               </div>
             </form>
           </div>
         </div>
         <div class="right">
           <div id="console">
-            <p id="consoleText"></p>
+            <img id="loading-animation" src="./assets/gear-static.svg" />
+            <div id="scroll-window">
+              <p id="consoleText"></p>
+            </div>
           </div>
           <p id="root-text"></p>
         </div>
       </div>
-        <button id="github-btn">
-          <div>
-            <img src="./assets/github.svg"/>
-            <p>GitHub</p>
-          </div>
-        </button>
+      <button id="github-btn">
+        <div>
+          <img src="./assets/github.svg" />
+          <p>GitHub</p>
+        </div>
+      </button>
     </div>
   </body>
 </html>

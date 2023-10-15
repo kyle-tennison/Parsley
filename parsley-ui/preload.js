@@ -10,9 +10,9 @@ contextBridge.exposeInMainWorld("electron", {
   runParse: () => ipcRenderer.invoke("runParse"),
   setRoot: () => ipcRenderer.invoke("setRoot"),
   getRoot: () => ipcRenderer.invoke("getRoot"),
-  exit: (hard=false) => ipcRenderer.invoke("exit", hard),
+  exit: (hard = false) => ipcRenderer.invoke("exit", hard),
   minimize: () => ipcRenderer.invoke("minimize"),
   openExternal: (link) => ipcRenderer.invoke("openExternal", link),
-  
+
   on: (signal, data) => ipcRenderer.on(signal, data),
 });

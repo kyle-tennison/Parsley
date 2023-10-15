@@ -236,8 +236,7 @@ $frame_depth: 35px
         height: 200px
         margin: 10px 20px 0px 0px
 
-        overflow-y: scroll
-        overflow-x: hidden
+        overflow: hidden
 
         background-color: #e0d9e1
         border: 1px solid #202020
@@ -257,6 +256,23 @@ $frame_depth: 35px
         em 
             color: red
             font-weight: bold
+
+        #scroll-window
+            width: 100%
+            height: 100%
+            overflow-y: scroll
+            overflow-x: hidden
+
+    #loading-animation
+        position: absolute
+        z-index: 10
+        width: 40px
+        top: 5px
+        right: 5px
+        opacity: 50%
+        filter: grayscale(100%)
+        
+
             
 
 
