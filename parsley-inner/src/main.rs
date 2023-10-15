@@ -79,24 +79,43 @@ fn main() -> Result<(), std::io::Error> {
     println!("debug: using root {:?}", root_dir);
     println!("debug: storage dir is: {:?}", storage_dir);
 
-    let mut cache_file = storage_dir.join("./cache.txt");
-    let mut config_json = storage_dir.join("./config.json");
+    let mut cache_file_path = storage_dir.join("./cache.txt");
+    let mut config_json_path = storage_dir.join("./config.json");
 
-    if let Ok(abspath) = fs::canonicalize(&cache_file) {
-        cache_file = abspath;
-    } else {
-        eprintln!("warn: could not locate cache. expected {:?}", cache_file);
-        File::create(&cache_file)?;
+
+    match fs::canonicalize(&cache_file_path){
+        Ok(cannon_path) => {
+            cache_file_path = cannon_path;
+        }
+        Err(_err) => {
+            eprintln!("warn: could not find cache. expected {:?}", cache_file_path);
+            
+            match File::create(&cache_file_path){
+                Ok(file) => {
+
+                    println!("debug: created new cache file {:?}", file);
+                }
+                Err(err) => {
+                    eprintln!("error: could not create cache file - {}", err);
+                    std::process::exit(1);
+                }
+            }
+        }
+
     }
-    if let Ok(abspath) = fs::canonicalize(config_json) {
-        config_json = abspath;
-    } else {
-        eprintln!("error: could not locate config json");
-        std::process::exit(1);
+    match fs::canonicalize(config_json_path){
+        Ok(cannon_path) => {
+            config_json_path = cannon_path;
+        }
+        Err(_err) => {
+            eprintln!("error: could not locate config json");
+            std::process::exit(1);
+        }
+
     }
 
-    println!("debug: located config json at {:?}", config_json);
-    println!("debug: located cache at {:?}", &cache_file);
+    println!("debug: located config json at {:?}", config_json_path);
+    println!("debug: located cache at {:?}", &cache_file_path);
 
     let mut filenames: Vec<String> = Vec::new();
     let mut filename_hashes: Vec<String> = Vec::new();
@@ -152,7 +171,7 @@ fn main() -> Result<(), std::io::Error> {
 
     // Load Previously Parsed Files
     let mut previously_parsed: HashMap<String, String> = HashMap::new();
-    let hashes_file = File::open(&cache_file)?;
+    let hashes_file = File::open(&cache_file_path)?;
     let reader = BufReader::new(&hashes_file);
 
     for line in reader.lines() {
@@ -179,7 +198,7 @@ fn main() -> Result<(), std::io::Error> {
     let cache_file_w_options = OpenOptions::new() // This will replace the existing parse list
         .write(true)
         .append(true)
-        .open(&cache_file)
+        .open(&cache_file_path)
         .unwrap();
     let mut writer = BufWriter::new(&cache_file_w_options);
 
@@ -210,7 +229,7 @@ fn main() -> Result<(), std::io::Error> {
 
     // Parse files
     println!("info: found {} files to parse", parse_queue.len());
-    let parser = Parser::new(&config_json.to_str().unwrap().to_string())?;
+    let parser = Parser::new(&config_json_path.to_str().unwrap().to_string())?;
     for file in &parse_queue {
         println!("debug: parsing {}", file);
 

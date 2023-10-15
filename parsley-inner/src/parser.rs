@@ -56,6 +56,9 @@ impl Parser {
             if line.contains("Parsley") {
                 continue;
             }
+            if line.is_empty(){
+                continue;
+            }
 
             for banned in &self.blacklist {
                 if line.contains(banned) {
