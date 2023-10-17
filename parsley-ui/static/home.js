@@ -231,7 +231,10 @@ window.electron.on("parse:stdout", (event, data) => {
 
   for (i in data.split("\n")) {
     let line = data.split("\n")[i];
-    if (line.startsWith("info:")) {
+    if (line.startsWith("info: success")){
+      line = `<strong class="green">${line}<strong/>`;
+    }
+    else if (line.startsWith("info:")) {
       line = `<strong>${line}<strong/>`;
     } else if (line.startsWith("error:")) {
       line = `<em>${line}<em/>`;

@@ -222,7 +222,8 @@ fn main() -> Result<(), std::io::Error> {
     }
 
     // Parse files
-    println!("info: found {} files to parse", parse_queue.len());
+    let parse_queue_length = parse_queue.len();
+    println!("info: found {} files to parse", parse_queue_length);
     let mut cache_buffer: HashMap<String, String> = HashMap::new();
     let parser = Parser::new(&config_json_path.to_str().unwrap().to_string())?;
     for file in &parse_queue {
@@ -244,6 +245,10 @@ fn main() -> Result<(), std::io::Error> {
 
     for (filename_hash, file_md5) in &cache_buffer{
         cache_file_w_options.write_all(format!("\n{} {}", filename_hash, file_md5).as_bytes())?;
+    }
+
+    if parse_queue_length > 0{
+        println!("info: successfully parsed {} gcode files", parse_queue_length);
     }
 
 
