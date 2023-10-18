@@ -13,7 +13,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-fn main() -> Result<(), std::io::Error> {
+
+// Locate root dir and storage dir from cli arguments
+fn resolve_cli_paths() -> (PathBuf, PathBuf){
     // Load cli arguments
     let args: Vec<String> = env::args().collect();
 
@@ -76,50 +78,14 @@ fn main() -> Result<(), std::io::Error> {
         std::process::exit(1);
     }
 
-    println!("debug: using root {:?}", root_dir);
-    println!("debug: storage dir is: {:?}", storage_dir);
+    (root_dir, storage_dir)
+    
+}
 
-    let mut cache_file_path = storage_dir.join("./cache.txt");
-    let mut config_json_path = storage_dir.join("./config.json");
-
-
-    match fs::canonicalize(&cache_file_path){
-        Ok(cannon_path) => {
-            cache_file_path = cannon_path;
-        }
-        Err(_err) => {
-            eprintln!("warn: could not find cache. expected {:?}", cache_file_path);
-            
-            match File::create(&cache_file_path){
-                Ok(file) => {
-
-                    println!("debug: created new cache file {:?}", file);
-                }
-                Err(err) => {
-                    eprintln!("error: could not create cache file - {}", err);
-                    std::process::exit(1);
-                }
-            }
-        }
-
-    }
-    match fs::canonicalize(config_json_path){
-        Ok(cannon_path) => {
-            config_json_path = cannon_path;
-        }
-        Err(_err) => {
-            eprintln!("error: could not locate config json");
-            std::process::exit(1);
-        }
-
-    }
-
-    println!("debug: located config json at {:?}", config_json_path);
-    println!("debug: located cache at {:?}", &cache_file_path);
-
+fn find_gcode_files(root_dir: PathBuf) -> Result<(Vec<String>, Vec<String>, Vec<String>), std::io::Error>{
     let mut filenames: Vec<String> = Vec::new();
     let mut filename_hashes: Vec<String> = Vec::new();
-    let mut file_hashes: Vec<String> = Vec::new();
+    let mut file_md5s: Vec<String> = Vec::new();
 
     let mut filter_queue: Vec<PathBuf> = Vec::new();
 
@@ -146,7 +112,7 @@ fn main() -> Result<(), std::io::Error> {
                 filenames.push(path.to_str().unwrap().to_string());
                 let filename = filenames.last().unwrap();
                 filename_hashes.push(util::hash_filename(filename));
-                file_hashes.push(util::md5_hash_file(filename)?);
+                file_md5s.push(util::md5_hash_file(filename)?);
             }
             searched_files += 1;
             Ok(())
@@ -169,9 +135,13 @@ fn main() -> Result<(), std::io::Error> {
         "mismatched filenames"
     );
 
-    // Load Previously Parsed Files
-    let mut previously_parsed: HashMap<String, String> = HashMap::new();
-    let hashes_file = File::open(&cache_file_path)?;
+
+    Ok((filenames, filename_hashes, file_md5s))
+}
+
+fn load_cache(cache_file_path: &PathBuf) -> Result<HashMap<String, String>, std::io::Error>{
+    let mut cache_map: HashMap<String, String> = HashMap::new();
+    let hashes_file = File::open(cache_file_path)?;
     let reader = BufReader::new(&hashes_file);
 
     for line in reader.lines() {
@@ -191,18 +161,21 @@ fn main() -> Result<(), std::io::Error> {
         let filename_hash = split[0].to_string();
         let file_md5 = split[1].to_string();
 
-        previously_parsed.insert(filename_hash, file_md5);
+        cache_map.insert(filename_hash, file_md5);
     }
 
-    // Search for modified/new files
+    Ok(cache_map)
+}
+
+fn get_modified_and_new_files(filenames: &mut Vec<String>, filename_hashes: &mut Vec<String>, file_md5s: &mut Vec<String>, cache_map: &mut HashMap<String, String>) -> (Vec<String>, HashMap<String, String>) {
     let mut cache_buffer: HashMap<String, String> = HashMap::new();
-    let mut parse_queue: Vec<String> = Vec::new();
-    while file_hashes.len() > 0 {
+    let mut modified_or_new_files: Vec<String> = Vec::new();
+    while file_md5s.len() > 0 {
         let filename_hash = filename_hashes.pop().unwrap();
-        let file_hash = file_hashes.pop().unwrap();
+        let file_hash = file_md5s.pop().unwrap();
         let filename = filenames.pop().unwrap();
 
-        match previously_parsed.get(&filename_hash) {
+        match cache_map.get(&filename_hash) {
             Some(existing_hash) => {
                 // Check if both hashes match
                 if *existing_hash == file_hash {
@@ -210,21 +183,86 @@ fn main() -> Result<(), std::io::Error> {
                     cache_buffer.insert(filename_hash, file_hash);
                 } else {
                     println!("info: found modified file {}", filename);
-                    parse_queue.push(filename);
+                    modified_or_new_files.push(filename);
                 }
             }
             None => {
                 // This means that there is a new file
                 println!("info: found new file {}", filename);
-                parse_queue.push(filename);
+                modified_or_new_files.push(filename);
             }
         }
     }
 
+    (modified_or_new_files, cache_buffer)
+}
+
+fn main() -> Result<(), std::io::Error> {
+
+
+    let r = resolve_cli_paths();
+    let root_dir = r.0;
+    let storage_dir = r.1;
+
+    println!("debug: using root {:?}", root_dir);
+    println!("debug: storage dir is: {:?}", storage_dir);
+
+    let mut cache_file_path = storage_dir.join("./cache.txt");
+    let mut config_json_path = storage_dir.join("./config.json");
+
+    // Validate Cache path; create new file if necessary
+    match fs::canonicalize(&cache_file_path){
+        Ok(cannon_path) => {
+            cache_file_path = cannon_path;
+        }
+        Err(_err) => {
+            eprintln!("warn: could not find cache. expected {:?}", cache_file_path);
+            
+            match File::create(&cache_file_path){
+                Ok(file) => {
+
+                    println!("debug: created new cache file {:?}", file);
+                }
+                Err(err) => {
+                    eprintln!("error: could not create cache file - {}", err);
+                    std::process::exit(1);
+                }
+            }
+        }
+    }
+
+    // Validate the json path; throw error if nonexistent 
+    match fs::canonicalize(config_json_path){
+        Ok(cannon_path) => {
+            config_json_path = cannon_path;
+        }
+        Err(_err) => {
+            eprintln!("error: could not locate config json");
+            std::process::exit(1);
+        }
+
+    }
+
+    println!("debug: located config json at {:?}", config_json_path);
+    println!("debug: located cache at {:?}", &cache_file_path);
+
+    // Recursively Search Gcode Files
+    let r = find_gcode_files(root_dir)?;
+    let mut filenames = r.0;
+    let mut filename_hashes = r.1;
+    let mut file_md5s = r.2;
+
+    // Load cache into memory
+    let mut cache_map = load_cache(&cache_file_path)?;
+
+    // Load files for parse queue
+    let r = get_modified_and_new_files(&mut filenames, &mut filename_hashes, &mut file_md5s, &mut cache_map);
+    let parse_queue = r.0;
+    let mut cache_buffer = r.1; // This will store the updated cache
+
     // Parse files
     let parse_queue_length = parse_queue.len();
     println!("info: found {} files to parse", parse_queue_length);
-    let mut cache_buffer: HashMap<String, String> = HashMap::new();
     let parser = Parser::new(&config_json_path.to_str().unwrap().to_string())?;
     for file in &parse_queue {
         println!("debug: parsing {}", file);
@@ -250,7 +288,6 @@ fn main() -> Result<(), std::io::Error> {
     if parse_queue_length > 0{
         println!("info: successfully parsed {} gcode files", parse_queue_length);
     }
-
 
     Ok(())
 
