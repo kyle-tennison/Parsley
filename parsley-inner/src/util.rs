@@ -18,6 +18,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
+/// Targeted filename extensions
+const EXTENSIONS: &'static [&str] = &[".gcode", ".tap", ".nc"];
+
 /// Lists items in a directory
 pub fn list_dir(path: &Path) -> Result<Vec<PathBuf>, std::io::Error> {
     let mut result: Vec<PathBuf> = Vec::new();
@@ -135,4 +138,17 @@ pub fn resolve_cli_paths() -> (PathBuf, PathBuf) {
     }
 
     (root_dir, storage_dir)
+}
+
+/// Determine whether a file extension is a toolpath
+pub fn is_toolpath(filename: &String) -> bool {
+    for ext in EXTENSIONS {
+        if filename.ends_with(ext) {
+            return true;
+        }
+        else{
+            println!("{} is not a toolpath", filename)
+        }
+    }
+    return false;
 }
