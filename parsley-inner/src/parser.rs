@@ -7,11 +7,10 @@ October 2023
 
 */
 
-pub mod parser{
-
+pub mod parser {
 
     use chrono::Local;
-use serde::Deserialize;
+    use serde::Deserialize;
     use serde_json;
     use std::{
         fs::{self, File, OpenOptions},
@@ -23,6 +22,7 @@ use serde::Deserialize;
         blacklist: Vec<String>,
     }
 
+    /// Controls parsing of gcode files
     pub struct Parser {
         blacklist: Vec<String>,
     }
@@ -43,6 +43,7 @@ use serde::Deserialize;
             })
         }
 
+        /// Run parse on a file from its filename
         pub fn parse_file(&self, filename: &String) -> Result<bool, std::io::Error> {
             let file = File::open(filename)?;
             let reader = BufReader::new(&file);
@@ -64,7 +65,7 @@ use serde::Deserialize;
                 if line.contains("Parsley") {
                     continue;
                 }
-                if line.is_empty(){
+                if line.is_empty() {
                     continue;
                 }
 
@@ -88,7 +89,8 @@ use serde::Deserialize;
         }
     }
 
-    pub fn format_current_date() -> String {
+    /// Formats system time into a string for parse signature
+    fn format_current_date() -> String {
         let now = Local::now();
         let month = now.format("%b").to_string();
         let day = now.format("%e").to_string();

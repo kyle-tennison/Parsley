@@ -7,7 +7,6 @@ October 2023
 
 */
 
-
 pub mod parsley {
 
     use crate::parser::parser;
@@ -153,6 +152,7 @@ pub mod parsley {
             Ok(cache_map)
         }
 
+        /// Runs parsley
         pub fn run(&mut self) -> Result<(), std::io::Error> {
             println!("Ran");
 

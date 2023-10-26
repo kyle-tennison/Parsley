@@ -8,10 +8,8 @@ October 2023
 */
 
 mod parser;
-mod util;
 mod parsley;
-
-
+mod util;
 
 fn main() -> Result<(), std::io::Error> {
     let cli_paths = util::resolve_cli_paths();
@@ -19,5 +17,4 @@ fn main() -> Result<(), std::io::Error> {
     p.run()?;
 
     Ok(())
-
 }
