@@ -1,8 +1,19 @@
-(Parsed by Parsley on Oct 14th, 2023 at 10:39pm)
+(MY PART)
+(T1  D=0.1575 CR=0. - ZMIN=-0.125 - BALL END MILL)
+G90 G94 G91.1 G40 G49 G17
+G20
+G28 G91 Z0.
+G90
 
-
-
-BADLINE
-GOODLINE
-This is a BADLINE 
-This is a line that is valid
+(MY PART)
+M5
+M9
+T1 M6
+S24000 M3
+G54
+M8
+G0 X4.2328 Y4.9296
+G43 Z0.6 H1
+Z0.2
+G1 Z0.08 F11.
+(omitted)

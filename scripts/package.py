@@ -12,6 +12,7 @@ def maybe_makedir(path):
     except FileExistsError:
         return
 
+
 def main():
 
     if len(sys.argv) < 2:
@@ -79,12 +80,14 @@ def main():
         if os.path.exists(build_dir):
             shutil.rmtree(build_dir, ignore_errors=True)
 
+        os.makedirs(build_dir, exist_ok=True)
+
         shutil.copytree(
             os.path.join(os.getcwd(), "out/Parsley-win32-ia32"),
-            os.path.join(build_dir)
+            os.path.join(build_dir, "Parsley")
             )
         
-        resources_dir = os.path.join(build_dir, "resources")
+        resources_dir = os.path.join(build_dir, "Parsley/resources")
 
         print("Built Parsley.exe")
         print("Building rust")
@@ -95,7 +98,12 @@ def main():
 
         shutil.copy(
             os.path.join(os.getcwd(), "target/x86_64-pc-windows-gnu/release/parsley-inner.exe"),
-            os.path.join(resources_dir)
+            resources_dir
+        )
+
+        shutil.copy(
+            os.path.join(scripts_dir, "wininstall.ps1"),
+            os.path.join(build_dir, "install-parsley.ps1")
         )
 
         
@@ -108,7 +116,7 @@ def main():
     os.chdir(resources_dir)
     with open("config.json", "w") as f:
         f.write("{\"blacklist\":[]}")
-    open("parsed_list.txt", "w").close()
+    open("cache.txt", "w").close()
 
 
 

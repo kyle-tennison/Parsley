@@ -59,21 +59,28 @@ function writeConfig(event, object) {
   );
 
   // When we write to the config we need to clear the cache
-  let cache = path.join(RESOURCE_DIR, "parsed_list.txt");
-  fs.unlink(cache, (err) => {
+  let cache = path.join(RESOURCE_DIR, "cache.txt");
+  fs.open(cache, "w", (err, fileDescriptor) => {
     if (err) {
-      console.error(`Error deleting cache: ${err}`);
-    } else {
-      console.log("Cache deleted successfully.");
+      console("Error opening the file:", err);
+      throw err;
     }
-  });
 
-  fs.writeFile(cache, "\n", (err) => {
-    if (err) {
-      console.error(`Error recreating cache: ${err}`);
-    } else {
-      console.log("Cache recreated successfully");
-    }
+    fs.ftruncate(fileDescriptor, 0, (truncateErr) => {
+      if (truncateErr) {
+        console.error("Error truncating the file:", truncateErr);
+      } else {
+        console.log("File contents cleared successfully.");
+      }
+
+      // Close the file descriptor.
+      fs.close(fileDescriptor, (closeErr) => {
+        if (closeErr) {
+          console.error("Error closing the file:", closeErr);
+          throw closeErr;
+        }
+      });
+    });
   });
 }
 
@@ -85,15 +92,13 @@ async function runParse() {
 
   if (process.platform === "win32") {
     command = `"${command}.exe"`;
-    command.replace("\\", "/");
-  }
-  else{
+    command = command.replace("\\", "/");
+  } else {
     command = `"${command}"`;
   }
 
-  for (let arg in args) {
-    arg = `"${arg}"`
-    arg = arg.replace("\\", "/");
+  for (let i in args) {
+    args[i] = `"${args[i]}"`.replace("\\", "/");
   }
 
   console.log("Running command: ", command, args);
@@ -105,7 +110,7 @@ async function runParse() {
 
   childProcess.stdout.on("data", (data) => {
     let stdout = data.toString();
-    console.log("Sending stdout:", stdout);
+    console.log("stdout:", stdout);
     if (window.isDestroyed()) return;
     window.webContents.send("parse:stdout", stdout);
   });
@@ -158,7 +163,7 @@ async function setRoot() {
 async function getRoot() {
   const root = readConfig().contents.root;
   if (root === undefined) {
-    return process.platform === "darwin" ? "~" : "%UserProfile%";
+    return process.platform === "darwin" ? "$HOME" : "%UserProfile%";
   }
   return root;
 }
