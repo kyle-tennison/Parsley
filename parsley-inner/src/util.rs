@@ -146,9 +146,6 @@ pub fn is_toolpath(filename: &String) -> bool {
         if filename.ends_with(ext) {
             return true;
         }
-        else{
-            println!("{} is not a toolpath", filename)
-        }
     }
     return false;
 }

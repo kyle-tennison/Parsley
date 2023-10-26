@@ -163,7 +163,7 @@ async function setRoot() {
 async function getRoot() {
   const root = readConfig().contents.root;
   if (root === undefined) {
-    return process.platform === "darwin" ? "~" : "%UserProfile%";
+    return process.platform === "darwin" ? "$HOME" : "%UserProfile%";
   }
   return root;
 }
