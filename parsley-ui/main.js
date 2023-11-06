@@ -24,6 +24,7 @@ class Parsley {
       ipcMain.handle("writeConfig", this.writeConfig.bind(this));
       ipcMain.handle("openConfig", this.openConfig.bind(this));
       ipcMain.handle("runParse", this.runParse.bind(this));
+      ipcMain.handle("stopParse", this.stopParse.bind(this));
       ipcMain.handle("getRoot", this.getRoot.bind(this));
       ipcMain.handle("setRoot", this.setRoot.bind(this));
       ipcMain.handle("exit", this.exit.bind(this));
@@ -174,6 +175,17 @@ class Parsley {
   }
 
   /**
+   * Stops rust parse process
+   */
+  async stopParse() {
+    if (this.rustProcess === undefined) {
+      console.log("Cannot kill empty process")
+    } else {
+      this.rustProcess.kill("SIGINT")
+    }
+  }
+
+  /**
    * Opens OS dialogue to prompt for root directory
    */
   async setRoot() {
@@ -217,10 +229,10 @@ class Parsley {
       process.platform === "darwin" // MacOS
         ? `open -a TextEdit "${path.join(this.RESOURCE_DIR, "config.json")}"`
         : process.platform === "win32" // Windows
-        ? `start notepad "${path.join(this.RESOURCE_DIR, "config.json")}"`
-        : process.platform === "linux" // Linux (GNOME)
-        ? `gnome-open "${path.join(this.RESOURCE_DIR, "config.json")}"`
-        : null; // Unknown platform
+          ? `start notepad "${path.join(this.RESOURCE_DIR, "config.json")}"`
+          : process.platform === "linux" // Linux (GNOME)
+            ? `gnome-open "${path.join(this.RESOURCE_DIR, "config.json")}"`
+            : null; // Unknown platform
 
     if (command) {
       exec(command, (error) => {
