@@ -8,10 +8,10 @@ October 2023
 */
 
 extern crate chrono;
-extern crate sha2;
-
+extern crate ring;
+use ring::digest;
 use md5::Context;
-use sha2::{Digest, Sha224};
+
 use std::{
     env, fs,
     io::Read,
@@ -43,15 +43,15 @@ pub fn is_directory(path: &Path) -> bool {
     }
 }
 
-/// Hashes a filename
-pub fn hash_filename(filename: &String) -> String {
-    let mut hasher = Sha224::new();
-    hasher.update(filename.as_bytes());
+/// Hashes a filepath
+pub fn hash_filepath(filename: &String) -> String {
+    let digest = digest::digest(&digest::SHA256, filename.as_bytes());
 
-    let hash = hasher.finalize();
-    let hash_string = format!("{:x}", hash);
-
-    hash_string
+    let hash_hex: String = digest.as_ref()
+        .iter()
+        .map(|byte| format!("{:02x}", byte))
+        .collect();
+    hash_hex[0..32].to_string() // Truncate to 32 char 
 }
 
 /// Calculates the md5 hash of a file

@@ -22,17 +22,17 @@ pub mod parsley {
         root_dir: PathBuf,
         storage_dir: PathBuf,
         filenames: Vec<String>,
-        filename_hashes: Vec<String>,
+        hashed_paths: Vec<String>,
         file_md5s: Vec<String>,
     }
 
     impl Parsley {
         pub fn new(root_dir: PathBuf, storage_dir: PathBuf) -> Parsley {
             Parsley {
-                root_dir: root_dir,
-                storage_dir: storage_dir,
+                root_dir,
+                storage_dir,
                 filenames: Vec::new(),
-                filename_hashes: Vec::new(),
+                hashed_paths: Vec::new(),
                 file_md5s: Vec::new(),
             }
         }
@@ -57,11 +57,9 @@ pub mod parsley {
 
                     // If the contents aren't from a directory, validate they are gcode
                     if util::is_toolpath(&path.to_str().unwrap().to_string()) {
-                        println!("debug: queueing {}", path.display());
-
                         self.filenames.push(path.to_str().unwrap().to_string());
                         let filename = self.filenames.last().unwrap();
-                        self.filename_hashes.push(util::hash_filename(filename));
+                        self.hashed_paths.push(util::hash_filepath(filename));
                         self.file_md5s.push(util::md5_hash_file(filename)?);
                     }
                     searched_files += 1;
@@ -81,7 +79,7 @@ pub mod parsley {
 
             // Make sure there are the same number of filenames as hashes
             assert!(
-                self.filename_hashes.len() == self.filenames.len(),
+                self.hashed_paths.len() == self.filenames.len(),
                 "mismatched filenames"
             );
 
@@ -95,16 +93,15 @@ pub mod parsley {
             let mut cache_buffer: HashMap<String, String> = HashMap::new();
             let mut modified_or_new_files: Vec<String> = Vec::new();
             while self.file_md5s.len() > 0 {
-                let filename_hash = self.filename_hashes.pop().unwrap();
+                let hashed_path = self.hashed_paths.pop().unwrap();
                 let file_hash = self.file_md5s.pop().unwrap();
                 let filename = self.filenames.pop().unwrap();
 
-                match cache_map.get(&filename_hash) {
+                match cache_map.get(&hashed_path) {
                     Some(existing_hash) => {
                         // Check if both hashes match
                         if *existing_hash == file_hash {
-                            println!("debug: {} is unchanged", file_hash);
-                            cache_buffer.insert(filename_hash, file_hash);
+                            cache_buffer.insert(hashed_path, file_hash);
                         } else {
                             println!("info: found modified file {}", filename);
                             modified_or_new_files.push(filename);
@@ -143,10 +140,10 @@ pub mod parsley {
                     std::process::exit(1);
                 }
 
-                let filename_hash = split[0].to_string();
+                let hashed_path = split[0].to_string();
                 let file_md5 = split[1].to_string();
 
-                cache_map.insert(filename_hash, file_md5);
+                cache_map.insert(hashed_path, file_md5);
             }
 
             Ok(cache_map)
@@ -218,7 +215,7 @@ pub mod parsley {
                 parser.parse_file(file)?;
 
                 // Add new hash into map
-                cache_buffer.insert(util::hash_filename(file), util::md5_hash_file(file)?);
+                cache_buffer.insert(util::hash_filepath(file), util::md5_hash_file(file)?);
             }
 
             // Write cache_buffer back into file
@@ -227,9 +224,9 @@ pub mod parsley {
                 .open(&cache_file_path)
                 .unwrap();
 
-            for (filename_hash, file_md5) in &cache_buffer {
+            for (hashed_path, file_md5) in &cache_buffer {
                 cache_file_w_options
-                    .write_all(format!("\n{} {}", filename_hash, file_md5).as_bytes())?;
+                    .write_all(format!("\n{} {}", hashed_path, file_md5).as_bytes())?;
             }
 
             if parse_queue_length > 0 {
