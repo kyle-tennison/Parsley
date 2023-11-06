@@ -93,7 +93,7 @@ def main():
             f"--volicon \"{os.path.join(build_resource_dir, 'dmg-icon.icns')}\" "
             f"--background \"{os.path.join(build_resource_dir, 'dmg-background.png')}\" "
             f"--window-pos 200 120 "
-            f"--window-size 800 400 "
+            f"--window-size 529 400 "
             f"--icon-size 80 "
             f"--icon \"{APP_NAME}.app\" 150 275 "
             f"--hide-extension \"{APP_NAME}.app\" "
