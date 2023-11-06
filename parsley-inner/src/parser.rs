@@ -71,7 +71,6 @@ pub mod parser {
 
                 for banned in &self.blacklist {
                     if line.contains(banned) {
-                        println!("debug: found illegal line: {}", line);
                         valid_line = false;
                     }
                 }

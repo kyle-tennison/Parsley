@@ -2,7 +2,6 @@
 // Kyle Tennison
 
 // For a touch of whimsy
-// const {JSConfetti} = require("./confetti.js")
 const jsConfetti = new JSConfetti();
 
 // Map checkbox blacklist map
@@ -122,6 +121,19 @@ async function scrollConsole() {
 
   // console.scrollTop = console.scrollHeight
   console.scrollIntoView({ behavior: "smooth", block: "end" });
+}
+
+// Limits overflown console
+async function limitConsole() {
+
+  const MAX_LINES = 500
+
+  let consoleText = document.getElementById("consoleText");
+  let lines = consoleText.innerHTML.split("<br>")
+
+  if (lines.length > MAX_LINES){
+    consoleText.innerHTML = lines.slice(-MAX_LINES).join("<br>")
+  }
 }
 
 // Appends line to blacklist
@@ -251,6 +263,7 @@ window.electron.on("parse:stdout", (event, data) => {
 
   consoleText.innerHTML += newContent;
   scrollConsole();
+  limitConsole();
 });
 
 window.electron.on("parse:stderr", (event, data) => {
