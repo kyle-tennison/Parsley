@@ -1,6 +1,6 @@
 {
-  "name": "parsley",
-  "version": "1.0.0",
+  "name": "Parsley",
+  "version": "1.1.0",
   "description": "UI For Parsley",
   "main": "main.js",
   "scripts": {
