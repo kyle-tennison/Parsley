@@ -1,4 +1,4 @@
-# v1.0.2
+# v1.1.0
 
 - Updated Caches
 - Misc. Bug Fixes
@@ -6,7 +6,7 @@
 - Updated Icons
 - Confetti !!!
 - Object-Oriented Electron Process
-
+- Button to stop parse
 
 
 # v1.0.1
