@@ -57,6 +57,7 @@ pub mod parsley {
 
                     // If the contents aren't from a directory, validate they are gcode
                     if util::is_toolpath(&path.to_str().unwrap().to_string()) {
+                        println!("debug: queueing {}", path.display());
                         self.filenames.push(path.to_str().unwrap().to_string());
                         let filename = self.filenames.last().unwrap();
                         self.hashed_paths.push(util::hash_filepath(filename));
