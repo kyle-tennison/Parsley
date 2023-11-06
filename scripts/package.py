@@ -6,6 +6,7 @@ import sys
 import shutil
 import dmgbuild
 
+
 def maybe_makedir(path):
     try:
         os.mkdir(path)
@@ -23,14 +24,15 @@ def main():
               "  win: Windows\n"
               )
         exit(1)
-        
+
     platform = sys.argv[1].lower()
 
     if platform not in ["darwin", "win"]:
         print(f"Error: Unknown platform '{platform}'")
 
-    scripts_dir =os.path.abspath(os.path.dirname(__file__))
-    build_resource_dir = os.path.abspath(os.path.join(scripts_dir, '../parsley-ui/build-resources/'))
+    scripts_dir = os.path.abspath(os.path.dirname(__file__))
+    build_resource_dir = os.path.abspath(os.path.join(
+        scripts_dir, '../parsley-ui/build-resources/'))
 
     os.chdir(scripts_dir)
 
@@ -61,16 +63,16 @@ def main():
         shutil.copytree(
             os.path.join(os.getcwd(), "out/Parsley-darwin-arm64/Parsley.app"),
             os.path.join(build_dir, "Parsley.app")
-            )
-        
+        )
+
         print("Built Parsley.app")
         print("Building rust")
-
 
         os.chdir(os.path.join(os.getcwd(), "../parsley-inner"))
         os.system("cargo build --release")
 
-        resources_dir = os.path.join(build_dir, "Parsley.app/Contents/Resources")
+        resources_dir = os.path.join(
+            build_dir, "Parsley.app/Contents/Resources")
 
         shutil.copy(
             os.path.join(os.getcwd(), "target/release/parsley-inner"),
@@ -80,10 +82,10 @@ def main():
         # build dmg
         print("Building dmg...")
         os.chdir(build_dir)
-        APP_NAME="Parsley"
-        DMG_FILE_NAME=f"{APP_NAME}-Installer.dmg"
-        VOLUME_NAME=f"{APP_NAME} Installer"
-        SOURCE_FOLDER_PATH="source_folder/"
+        APP_NAME = "Parsley"
+        DMG_FILE_NAME = f"{APP_NAME}-Installer.dmg"
+        VOLUME_NAME = f"{APP_NAME} Installer"
+        SOURCE_FOLDER_PATH = "source_folder/"
 
         cmd = (
             "create-dmg "
@@ -98,11 +100,10 @@ def main():
             f"--app-drop-link 375 275 "
             f"\"Install-Parsley.dmg\" "
             f"Parsley.app/ "
-            )
-        
+        )
+
         print(cmd)
         os.system(cmd)
-        
 
     elif platform == "win":
         print("Building for win")
@@ -121,19 +122,19 @@ def main():
         shutil.copytree(
             os.path.join(os.getcwd(), "out/Parsley-win32-ia32"),
             os.path.join(build_dir, "Parsley")
-            )
-        
+        )
+
         resources_dir = os.path.join(build_dir, "Parsley/resources")
 
         print("Built Parsley.exe")
         print("Building rust")
 
-
         os.chdir(os.path.join(os.getcwd(), "../parsley-inner"))
         os.system("cargo build --release --target x86_64-pc-windows-gnu")
 
         shutil.copy(
-            os.path.join(os.getcwd(), "target/x86_64-pc-windows-gnu/release/parsley-inner.exe"),
+            os.path.join(
+                os.getcwd(), "target/x86_64-pc-windows-gnu/release/parsley-inner.exe"),
             resources_dir
         )
 
@@ -141,8 +142,6 @@ def main():
             os.path.join(scripts_dir, "wininstall.ps1"),
             os.path.join(build_dir, "install-parsley.ps1")
         )
-
-        
 
     else:
         print("Invalid platform", platform)
@@ -155,8 +154,5 @@ def main():
     open("cache.txt", "w").close()
 
 
-
 if __name__ == "__main__":
     main()
-
-
