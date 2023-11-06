@@ -7,3 +7,4 @@ yarn.lock
 out/
 .DS_Store
 build
+*.psd
