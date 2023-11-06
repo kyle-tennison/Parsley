@@ -131,7 +131,7 @@ async function limitConsole() {
   let consoleText = document.getElementById("consoleText");
   let lines = consoleText.innerHTML.split("<br>")
 
-  if (lines.length > MAX_LINES){
+  if (lines.length > MAX_LINES) {
     consoleText.innerHTML = lines.slice(-MAX_LINES).join("<br>")
   }
 }
@@ -209,8 +209,14 @@ window.addEventListener("load", async () => {
     button.disabled = true;
     playLoading();
     document.getElementById("consoleText").textContent = "";
+    document.getElementById("stop-parse").disabled = false;
     await window.electron.runParse();
   });
+
+  // Listen for parse stop
+  document.getElementById("stop-parse").addEventListener("click", async () => {
+    await window.electron.stopParse();
+  })
 
   // Listen for header controls
   document.getElementById("exit").addEventListener("click", () => {
@@ -283,8 +289,8 @@ window.electron.on("parse:stderr", (event, data) => {
 });
 
 window.electron.on("parse:exit", (event, code) => {
-  let button = document.getElementById("start-parse");
-  button.disabled = false;
+  document.getElementById("start-parse").disabled = false;
+  document.getElementById("stop-parse").disabled = true;
   pauseLoading();
   console.log(`Command exited with code ${code}`);
 });
