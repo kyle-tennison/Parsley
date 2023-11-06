@@ -66,7 +66,7 @@ class Parsley {
       );
     } else {
       this.RESOURCE_DIR = path.resolve(path.join(__dirname, ".."));
-      this.INNER_PATH = path.join(RESOURCE_DIR, "parsley-inner");
+      this.INNER_PATH = path.join(this.RESOURCE_DIR, "parsley-inner");
       console.log("Running in production mode");
     }
   }
