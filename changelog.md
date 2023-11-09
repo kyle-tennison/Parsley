@@ -8,7 +8,6 @@
 - Object-Oriented Electron Process
 - Button to stop parse
 
-
 # v1.0.1
 
 - Fixed permission issues on windows

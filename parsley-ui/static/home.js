@@ -125,14 +125,13 @@ async function scrollConsole() {
 
 // Limits overflown console
 async function limitConsole() {
-
-  const MAX_LINES = 500
+  const MAX_LINES = 500;
 
   let consoleText = document.getElementById("consoleText");
-  let lines = consoleText.innerHTML.split("<br>")
+  let lines = consoleText.innerHTML.split("<br>");
 
   if (lines.length > MAX_LINES) {
-    consoleText.innerHTML = lines.slice(-MAX_LINES).join("<br>")
+    consoleText.innerHTML = lines.slice(-MAX_LINES).join("<br>");
   }
 }
 
@@ -216,7 +215,7 @@ window.addEventListener("load", async () => {
   // Listen for parse stop
   document.getElementById("stop-parse").addEventListener("click", async () => {
     await window.electron.stopParse();
-  })
+  });
 
   // Listen for header controls
   document.getElementById("exit").addEventListener("click", () => {
