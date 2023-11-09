@@ -179,9 +179,9 @@ class Parsley {
    */
   async stopParse() {
     if (this.rustProcess === undefined) {
-      console.log("Cannot kill empty process")
+      console.log("Cannot kill empty process");
     } else {
-      this.rustProcess.kill("SIGINT")
+      this.rustProcess.kill("SIGINT");
     }
   }
 
@@ -229,10 +229,10 @@ class Parsley {
       process.platform === "darwin" // MacOS
         ? `open -a TextEdit "${path.join(this.RESOURCE_DIR, "config.json")}"`
         : process.platform === "win32" // Windows
-          ? `start notepad "${path.join(this.RESOURCE_DIR, "config.json")}"`
-          : process.platform === "linux" // Linux (GNOME)
-            ? `gnome-open "${path.join(this.RESOURCE_DIR, "config.json")}"`
-            : null; // Unknown platform
+        ? `start notepad "${path.join(this.RESOURCE_DIR, "config.json")}"`
+        : process.platform === "linux" // Linux (GNOME)
+        ? `gnome-open "${path.join(this.RESOURCE_DIR, "config.json")}"`
+        : null; // Unknown platform
 
     if (command) {
       exec(command, (error) => {
